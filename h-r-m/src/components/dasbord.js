@@ -1,118 +1,64 @@
-import React from 'react';
-import Attendance from './attendance';
-import CustomCalendar from './CustomCalendar'; // Import the CustomCalendar component
+import React from "react";
+import { BiTask } from "react-icons/bi";
+import { FaUsers } from "react-icons/fa";
+import { IoCalendarNumberOutline } from "react-icons/io5";
+import { GrDocumentText } from "react-icons/gr";
+import { TbUsersGroup } from "react-icons/tb";
+import { PiCalendar } from "react-icons/pi";
+import { GrDocumentPerformance } from "react-icons/gr";
+import { RiCustomerService2Line } from "react-icons/ri";
+import { IoHappyOutline } from "react-icons/io5";
+import { SiLogitech } from "react-icons/si";
+import { TbBrandYatse } from "react-icons/tb";
+import { RiP2pLine } from "react-icons/ri";
+import { FaPeoplePulling } from "react-icons/fa6";
+import { SiChromewebstore } from "react-icons/si";
+import { MdOutlinePolicy } from "react-icons/md";
+import { FaDropbox } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-const Dashboard = () => {
-  const totalEmployees = 50;
-  const present = 32;
-  const absent = totalEmployees - present;
-  const projects = { total: 10, completed: 9, pending: 1 };
-
-  const handleAddEmployee = () => {
-    alert('Add New Employee functionality');
-  };
+const DashboardGrid = () => {
+  const icons = [
+    { label: "Task Box", Icon: BiTask, path: "" },
+    { label: "Employee", Icon: FaUsers, path: "" },
+    { label: "Attendance", Icon: IoCalendarNumberOutline, path: "attendance" },
+    { label: "Leave", Icon: BiTask, path: "" },
+    { label: "HR Policies", Icon: GrDocumentText, path: "" },
+    { label: "HR Documents", Icon: BiTask, path: "" },
+    { label: "Recruitment", Icon: TbUsersGroup, path: "" },
+    { label: "Calendar", Icon: PiCalendar, path: "" },
+    { label: "Performance", Icon: GrDocumentPerformance, path: "" },
+    { label: "Helpdesk", Icon: RiCustomerService2Line, path: "" },
+    { label: "Happay", Icon: IoHappyOutline, path: "" },
+    { label: "Logit", Icon: SiLogitech, path: "" },
+    { label: "Yatya", Icon: TbBrandYatse, path: "" },
+    { label: "P2P", Icon: RiP2pLine, path: "" },
+    { label: "Evolve", Icon: FaPeoplePulling, path: "" },
+    { label: "EPFO Website", Icon: SiChromewebstore, path: "" },
+    { label: "Polocoes", Icon: MdOutlinePolicy, path: "" },
+    { label: "Blue Box", Icon: FaDropbox, path: "" },
+   
+  ];
 
   return (
-    <div className="p-6 space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-500">Overview of your organization</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Employees */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg rounded-lg p-6">
-          <h2 className="text-lg font-semibold">Total Employees</h2>
-          <p className="text-5xl font-bold mt-2">{totalEmployees}</p>
-          <div className="mt-4 flex justify-between">
-            <p>Present: {present}</p>
-            <p>Absent: {absent}</p>
-          </div>
-          <button
-            onClick={handleAddEmployee}
-            className="w-full mt-6 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600"
+    <div className="p-4 md:p-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+        {icons.map((item, index) => (
+          <Link 
+            to={item.path} 
+            key={index}
+            className="text-center bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 p-4 md:p-6"
           >
-            Add New Employee
-          </button>
-        </div>
-
-        {/* Attendance */}
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-800">Today's Attendance</h2>
-          <div className="flex items-center justify-center mt-4">
-            <div className="relative w-24 h-24">
-              <svg className="absolute inset-0" viewBox="0 0 36 36">
-                <circle
-                  className="text-gray-300 stroke-current"
-                  strokeWidth="3"
-                  fill="none"
-                  r="16"
-                  cx="18"
-                  cy="18"
-                />
-                <circle
-                  className="text-blue-500 stroke-current"
-                  strokeWidth="3"
-                  strokeDasharray={`${((present / totalEmployees) * 100).toFixed(0)}, 100`}
-                  fill="none"
-                  r="16"
-                  cx="18"
-                  cy="18"
-                />
-              </svg>
-              <p className="absolute inset-0 flex items-center justify-center font-bold text-2xl text-blue-500">
-                {((present / totalEmployees) * 100).toFixed(0)}%
-              </p>
-            </div>
-          </div>
-          <p className="text-gray-500 text-center mt-4">Present</p>
-        </div>
-
-        {/* Project Status */}
-        <div className="bg-gradient-to-r from-green-500 to-green-700 text-white shadow-lg rounded-lg p-6">
-          <h2 className="text-lg font-semibold">Project Status</h2>
-          <div className="mt-4">
-            <p>Total: {projects.total}</p>
-            <p>Completed: {projects.completed}</p>
-            <p>Pending: {projects.pending}</p>
-          </div>
-          <div className="mt-4 w-full bg-gray-100 rounded-full h-3">
-            <div
-              className="bg-green-300 h-full rounded-full"
-              style={{ width: `${(projects.completed / projects.total) * 100}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Leave Requests */}
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-800">Leave Requests</h2>
-          <div className="mt-4">
-            <p className="text-gray-600">Approved: 5</p>
-            <p className="text-gray-600">Pending: 3</p>
-            <p className="text-gray-600">Rejected: 2</p>
-          </div>
-          <button className="w-full mt-6 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
-            View Details
-          </button>
-        </div>
-      </div>
-
-      {/* Calendar Section */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-800">Events Calendar</h2>
-        <CustomCalendar />
-      </div>
-
-      {/* Attendance Component */}
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-800">Attendance Details</h2>
-        <Attendance />
+            <item.Icon 
+              className="text-blue-500 mb-2 mx-auto"
+              size={40} // Set the size directly using react-icons' `size` prop
+            />
+            <p className="font-medium text-gray-700">{item.label}</p>
+          </Link>
+        ))}
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default DashboardGrid;

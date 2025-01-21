@@ -1,129 +1,177 @@
-import React, { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from "react";
+import { Link, Outlet } from "react-router-dom";
+import { FiSearch, FiBell, FiX } from "react-icons/fi";
 
 const Layout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchInputRef = useRef(null); // Ref to focus the search input
+  const searchModalRef = useRef(null); // Ref to detect clicks outside the search modal
+  const notificationsRef = useRef(null); // Ref to detect clicks outside the notifications dropdown
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const notifications = [
+    { id: 1, text: "New employee added", time: "5m ago", isNew: true },
+    { id: 2, text: "Attendance marked for today", time: "10m ago", isNew: true },
+    { id: 3, text: "Leave request approved", time: "1h ago", isNew: false },
+  ];
+  const newNotifications = notifications.filter((n) => n.isNew);
+  const oldNotifications = notifications.filter((n) => !n.isNew);
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen); // Toggle the search input visibility
+  };
+
+  const handleSearchCancel = () => {
+    setIsSearchOpen(false); // Hide the search input
+  };
+
+  // Focus on the search input when it opens
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
+
+  // Close the search modal when clicking outside the modal
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchModalRef.current && !searchModalRef.current.contains(event.target)) {
+        setIsSearchOpen(false); // Close search if clicked outside
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close the notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+        setIsNotificationsOpen(false); // Close notifications if clicked outside
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white p-6 transform transition-transform duration-300 ease-in-out z-40 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:block`} // Sidebar will be shown only on large screens and tablet sizes when opened
-      >
-        <button
-          onClick={toggleSidebar}
-          className="absolute top-4 right-4 text-white text-3xl lg:hidden"
-        >
-          &times;
-        </button>
-        <nav className="mt-8 space-y-4">
-          <Link to="/" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Home
-          </Link>
-          <Link to="/employee-directory" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Employee Directory
-          </Link>
-          <Link to="/attendance" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Attendance
-          </Link>
-          <Link to="/leave-management" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Leave Management
-          </Link>
-          <Link to="/payroll" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Payroll
-          </Link>
-          <Link to="/performance-reviews" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Performance Reviews
-          </Link>
-          <Link to="/reports" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Reports & Analytics
-          </Link>
-          <Link to="/training" className="block px-4 py-3 hover:bg-gray-700 rounded" onClick={toggleSidebar}>
-            Training & Development
-          </Link>
-        </nav>
-      </aside>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm fixed w-full z-20">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-between h-16 px-4">
+            {/* Logo */}
+            <Link to="/" className="text-xl font-bold text-blue-600">
+              HRM Dashboard
+            </Link>
+
+            {/* Search and Notifications */}
+            <div className="flex items-center gap-4">
+              {/* Mobile Search Icon */}
+              <button
+                className="p-2 rounded-lg hover:bg-gray-100 md:hidden"
+                onClick={handleSearchToggle} // Toggle search input
+              >
+                <FiSearch size={20} />
+              </button>
+
+              {/* Full Search Input (Visible on Desktop) */}
+              <div className="hidden md:block relative">
+                <input
+                  type="text"
+                  placeholder="Search employees or departments..."
+                  className="w-64 px-4 py-2 pl-10 rounded-lg bg-gray-50 border focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                />
+                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              </div>
+
+              {/* Mobile Search Input (Appears when toggled) */}
+              {isSearchOpen && (
+                <div className="fixed inset-0 z-30 bg-black bg-opacity-50 flex items-start justify-center pt-6">
+                  <div ref={searchModalRef} className="relative bg-white w-full max-w-md mx-auto p-4 rounded-lg shadow-lg">
+                    {/* Cancel Button */}
+                    <button
+                      onClick={handleSearchCancel}
+                      className="absolute top-1 right-3 text-gray-500 hover:text-gray-700"
+                      aria-label="Close search"
+                    >
+                      <FiX size={24} />
+                    </button>
+
+                    {/* Search Input */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <FiSearch size={24} className="text-gray-400" />
+                      <input
+                        ref={searchInputRef} // Focus the input when it opens
+                        type="text"
+                        placeholder="Search employees or departments..."
+                        className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Notifications */}
+              <div className="relative" ref={notificationsRef}>
+                <button
+                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  className="p-2 rounded-lg hover:bg-gray-100 relative"
+                >
+                  <FiBell size={20} />
+                  {notifications.some((n) => n.isNew) && (
+                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                  )}
+                </button>
+
+                {isNotificationsOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg">
+                    {newNotifications.length > 0 ? (
+                      <>
+                        <p className="px-4 py-2 text-sm text-blue-600 font-semibold border-b">New Notifications</p>
+                        <ul className="py-2">
+                          {newNotifications.map((notification) => (
+                            <li
+                              key={notification.id}
+                              className="px-4 py-2 bg-blue-50 hover:bg-gray-100"
+                            >
+                              <p className="text-sm font-medium">{notification.text}</p>
+                              <p className="text-xs text-gray-400">{notification.time}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    ) : oldNotifications.length > 0 ? (
+                      <>
+                        <p className="px-4 py-2 text-sm text-gray-600 font-semibold border-b">Earlier Notifications</p>
+                        <ul className="py-2">
+                          {oldNotifications.map((notification) => (
+                            <li
+                              key={notification.id}
+                              className="px-4 py-2 hover:bg-gray-100"
+                            >
+                              <p className="text-sm font-medium">{notification.text}</p>
+                              <p className="text-xs text-gray-400">{notification.time}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    ) : (
+                      <p className="px-4 py-2 text-sm text-gray-400">No notifications available.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen bg-gray-100 overflow-hidden">
-        {/* Navbar */}
-        <header className="sticky top-0 bg-gray-900 text-white shadow-md z-30">
-          <div className="flex items-center justify-between px-6 py-4">
-            {/* Logo */}
-            <h1 className="text-2xl font-extrabold tracking-wide">
-              <Link to="/" className="text-blue-400 hover:text-blue-300">
-                HRM Dashboard
-              </Link>
-            </h1>
-
-            {/* Inline navigation for larger screens */}
-            <div className="hidden lg:flex space-x-6"> {/* Inline links visible on lg and larger screens */}
-              <Link
-                to="/"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Home
-              </Link>
-              <Link
-                to="/employee-directory"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Employee Directory
-              </Link>
-              <Link
-                to="/attendance"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Attendance
-              </Link>
-              <Link
-                to="/leave-management"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Leave Management
-              </Link>
-              <Link
-                to="/payroll"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Payroll
-              </Link>
-              <Link
-                to="/performance-reviews"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Performance Reviews
-              </Link>
-              <Link
-                to="/reports"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Reports & Analytics
-              </Link>
-              <Link
-                to="/training"
-                className="text-sm font-medium text-gray-300 hover:text-blue-300 transition-colors"
-              >
-                Training & Development
-              </Link>
-            </div>
-
-            {/* Hamburger Menu for smaller screens */}
-            <button className="text-3xl lg:hidden" onClick={toggleSidebar}> {/* Show on mobile and tablet screens */}
-              ☰
-            </button>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6 overflow-y-auto">
+      <main className="pt-16">
+        <div className="container mx-auto p-6">
           <Outlet />
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };
