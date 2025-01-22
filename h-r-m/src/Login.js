@@ -1,51 +1,117 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { Eye, EyeOff } from 'lucide-react';
 
-const Login = () => {
+const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Mock authentication
-    if (email === 'admin' && password === 'admin') {
-      setUser({ isAuthenticated: true, role: 'admin' });
-      navigate('/');
-    } else if (email === 'employee' && password === 'employee') {
-      setUser({ isAuthenticated: true, role: 'employee' });
-      navigate('/');
-    } else if (email === 'hr' && password === 'hr') {
-      setUser({ isAuthenticated: true, role: 'hr' });
-      navigate('/');
-    } else {
-      alert('Invalid credentials');
+    setIsLoading(true);
+    setError('');
+      // Trim spaces from email and password before comparing
+  const trimmedEmail = email.trim();
+  const trimmedPassword = password.trim();
+    try {
+      // Mock authentication logic
+      if (trimmedEmail === 'admin' && trimmedPassword === 'admin') {
+        setUser({ isAuthenticated: true, role: 'admin' });
+        navigate('/');
+      } else if (email === 'employee' && password === 'employee') {
+        setUser({ isAuthenticated: true, role: 'employee' });
+        navigate('/');
+      } else if (email === 'hr' && password === 'hr') {
+        setUser({ isAuthenticated: true, role: 'hr' });
+        navigate('/');
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (error) {
+      setError('Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
+        <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Login</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter your username"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div className="text-red-500 text-sm text-center">{error}</div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className={`w-full py-3 px-4 rounded-md text-white font-medium ${
+              isLoading
+                ? 'bg-blue-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            } transition-colors`}
+          >
+            {isLoading ? 'Logging in...' : 'Log In'}
+          </button>
+        </form>
+
+        <div className="mt-8 text-sm text-gray-600">
+          <p className="text-center font-medium">Demo Credentials:</p>
+          <ul className="list-none text-center space-y-2 mt-3">
+            <li>Admin: admin / admin</li>
+            <li>Employee: employee / employee</li>
+            <li>HR: hr / hr</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default Login;
+export default LoginForm;
