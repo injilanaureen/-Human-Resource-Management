@@ -12,7 +12,7 @@ const Layout = () => {
   const notifications = [
     { id: 1, text: "New employee added", time: "5m ago", isNew: true },
     { id: 2, text: "Attendance marked for today", time: "10m ago", isNew: true },
-    { id: 3, text: "Leave request approved", time: "1h ago", isNew: false },
+    { id: 3, text: "Leave request approved", time: "1h ago", isNew: true },
   ];
   const newNotifications = notifications.filter((n) => n.isNew);
   const oldNotifications = notifications.filter((n) => !n.isNew);
@@ -61,7 +61,7 @@ const Layout = () => {
           <div className="flex items-center justify-between h-16 px-4">
             {/* Logo */}
             <Link to="/" className="text-xl font-bold text-blue-600">
-              HRM Dashboard
+              Employee Dashboard
             </Link>
 
             {/* Search and Notifications */}

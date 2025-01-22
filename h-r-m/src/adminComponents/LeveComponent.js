@@ -13,17 +13,16 @@ const sampleEmployees = [
 const LevelComponent = () => {
   const [employees, setEmployees] = useState(sampleEmployees);
   const [search, setSearch] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState('');
-
-  const handleLevelChange = (id, newLevel) => {
-    const updatedEmployees = employees.map(employee =>
-      employee.id === id ? { ...employee, level: newLevel } : employee
-    );
-    setEmployees(updatedEmployees);
-  };
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
+  };
+
+  const handleRadioChange = (id, action) => {
+    const updatedEmployees = employees.map(employee =>
+      employee.id === id ? { ...employee, action } : employee
+    );
+    setEmployees(updatedEmployees);
   };
 
   const filteredEmployees = employees.filter(employee =>
@@ -62,17 +61,27 @@ const LevelComponent = () => {
               <td className="px-4 py-2 border">{employee.level}</td>
               <td className="px-4 py-2 border">{employee.department}</td>
               <td className="px-4 py-2 border">
-                {/* Level Selection */}
-                <select
-                  value={employee.level}
-                  onChange={(e) => handleLevelChange(employee.id, e.target.value)}
-                  className="p-2 border rounded"
-                >
-                  <option value="Junior">Junior</option>
-                  <option value="Mid-Level">Mid-Level</option>
-                  <option value="Senior">Senior</option>
-                  <option value="Lead">Lead</option>
-                </select>
+                {/* Radio Buttons for Accept and Cancel */}
+                <label className="mr-4">
+                  <input
+                    type="radio"
+                    name={`action-${employee.id}`}
+                    value="Accept"
+                    checked={employee.action === 'Accept'}
+                    onChange={() => handleRadioChange(employee.id, 'Accept')}
+                  />
+                  Accept
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name={`action-${employee.id}`}
+                    value="Cancel"
+                    checked={employee.action === 'Cancel'}
+                    onChange={() => handleRadioChange(employee.id, 'Cancel')}
+                  />
+                  Cancel
+                </label>
               </td>
             </tr>
           ))}
