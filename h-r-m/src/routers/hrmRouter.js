@@ -6,7 +6,7 @@ import Attendance from '../hrmComponents/attendance';
 import CustomCalendar from '../hrmComponents/CustomCalendar';
 import TaskBox from '../hrmComponents/taskBox';
 import Employee from '../hrmComponents/employee';
-import LeveComponent from '../hrmComponents/LeveComponent';
+import HRMLeaveManagement from '../hrmComponents/hrmLeveComponent';
 import HrPolicies from '../hrmComponents/hrPolicies';
 import HrDocuments from '../hrmComponents/hrDocuments';
 import Recruitment from '../hrmComponents/recruitment';
@@ -32,7 +32,7 @@ const HrmRouters = () => {
           <Route path="taskbox" element={<TaskBox />} />
           <Route path="employee" element={<Employee />} />
           <Route path="attendance" element={<Attendance />} />
-          <Route path="leve" element={<LeveComponent />} />
+          <Route path="leve" element={<HRMLeaveManagement />} />
           <Route path="hrPolicies" element={<HrPolicies />} />
           <Route path="hrDocuments" element={<HrDocuments />} />
           <Route path="recruitment" element={<Recruitment />} />
