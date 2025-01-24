@@ -9,6 +9,7 @@
     "@mui/icons-material": "^6.4.0",
     "@mui/material": "^6.4.0",
     "antd": "^5.23.2",
+    "axios": "^1.7.9",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.473.0",
     "moment": "^2.30.1",

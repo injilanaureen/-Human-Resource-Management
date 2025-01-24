@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
-
+import axios from 'axios';
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,33 +13,49 @@ const LoginForm = () => {
   const { setUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-      // Trim spaces from email and password before comparing
+ const handleSubmit = async (event) => {
+  event.preventDefault(); // Prevent page reload
   const trimmedEmail = email.trim();
   const trimmedPassword = password.trim();
-    try {
-      // Mock authentication logic
-      if (trimmedEmail === 'admin' && trimmedPassword === 'admin') {
-        setUser({ isAuthenticated: true, role: 'admin' });
+
+  try {
+    setIsLoading(true);
+
+    // Send login request to the backend
+    const response = await axios.post('http://localhost:5000/api/auth/login', {
+      email: trimmedEmail,
+      password: trimmedPassword,
+    });
+
+    const { isAuthenticated, emp_id, emp_full_name, role } = response.data;
+    console.log(response.data);
+    
+    if (isAuthenticated) {
+      const userData = { isAuthenticated, emp_id, emp_full_name, role };
+
+      // Save user data to context
+      setUser(userData);
+
+      // Persist user data to localStorage
+   
+
+      // Redirect based on role
+      if (role === 'admin' || role === 'employee' || role === 'hr') {
         navigate('/');
-      } else if (email === 'employee' && password === 'employee') {
-        setUser({ isAuthenticated: true, role: 'employee' });
-        navigate('/');
-      } else if (email === 'hr' && password === 'hr') {
-        setUser({ isAuthenticated: true, role: 'hr' });
-        navigate('/');
-      } else {
-        setError('Invalid credentials');
+       
       }
-    } catch (error) {
-      setError('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+    } else {
+      setError('Invalid credentials');
     }
-  };
+  } catch (error) {
+    setError('Login failed. Please try again.');
+    console.error('Error:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
