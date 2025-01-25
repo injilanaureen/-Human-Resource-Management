@@ -6,9 +6,10 @@ const authRouter = express.Router();
 // Login route
 authRouter.post('/login', (req, res) => {
   const { email, password } = req.body;
-
+  console.log(req.body);
+  
   const query =
-  'SELECT * FROM master m RIGHT JOIN role_and_permission r ON m.role_id = r.role_id WHERE m.emp_email = ? AND m.emp_status = "active"';
+    'SELECT * FROM master m RIGHT JOIN role_and_permission r ON m.role_id = r.role_id WHERE m.emp_email = ? AND m.emp_password = ? ';
 
   db.query(query, [email, password], (err, result) => {
     if (err) {
@@ -20,7 +21,7 @@ authRouter.post('/login', (req, res) => {
     }
 
     const user = result[0];
-
+    console.log(user);
     // Save user information in the session
     req.session.user = {
       emp_id: user.emp_id,
