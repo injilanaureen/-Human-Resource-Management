@@ -9,7 +9,7 @@ authRouter.post('/login', (req, res) => {
   console.log(req.body);
   
   const query =
-    'SELECT * FROM master m RIGHT JOIN role_and_permission r ON m.role_id = r.role_id WHERE m.emp_email = ? AND m.emp_password = ? ';
+    'SELECT * FROM master m RIGHT JOIN role_and_permission r ON m.role_id = r.role_id WHERE m.emp_email = ? AND m.emp_password = ?';
 
   db.query(query, [email, password], (err, result) => {
     if (err) {
@@ -21,29 +21,32 @@ authRouter.post('/login', (req, res) => {
     }
 
     const user = result[0];
-    console.log(user);
-    // Save user information in the session
-    req.session.user = {
-      emp_id: user.emp_id,
-      emp_full_name: user.emp_full_name,
-      role: user.role,
-    };
-
-    res.cookie('isAuthenticated', true, {
-
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-    });
-
-    // Send a success response
+   
+    
+    // Directly send the user data as a JSON response
     return res.json({
       isAuthenticated: true,
       emp_id: user.emp_id,
       emp_full_name: user.emp_full_name,
+      emp_personal_email: user.emp_personal_email,
+      emp_phone_no: user.emp_phone_no,
+      emp_addhar_no: user.emp_addhar_no,
+      emp_pan_card_no: user.emp_pan_card_no,
+      emp_department: user.emp_department,
+      emp_designation: user.emp_designation,
+      emp_join_date: user.emp_join_date,
+      emp_status: user.emp_status,
+      role_id: user.role_id,
+      role_permission: user.role_permission,
+      emp_email: user.emp_email,
+      emp_password: user.emp_password,
       role: user.role,
+      permission: user.permission,
+      total_leave: user.total_leave  // Ensure total_leave is here
     });
   });
 });
+
 
 // Logout route
 authRouter.post('/logout', (req, res) => {
