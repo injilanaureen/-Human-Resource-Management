@@ -35,7 +35,7 @@ const managingDirector = "Subir Majumdar"
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Overview</h2>
         <div className="space-x-2">
-         <Link ><button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm">VIEW PERSONAL DETAILS</button></Link>
+         <Link to={`/personaldetails/${row.emp_id}`}><button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm">VIEW PERSONAL DETAILS</button></Link>
           <button className="bg-purple-500 text-white px-3 py-1.5 rounded text-sm">DOWNLOAD</button>
         </div>
       </div>
