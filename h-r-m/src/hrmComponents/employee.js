@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, EyeOff,XCircle, Plus,Minus } from 'lucide-react';
+import { ArrowLeft, EyeOff,XCircle, Plus } from 'lucide-react';
 import { Link } from "react-router-dom";
-import { CSVLink } from 'react-csv';
 import axios from 'axios';
 import { Search } from 'lucide-react';
 import { Filter } from 'lucide-react';
@@ -9,8 +8,6 @@ import { Settings } from 'lucide-react';
 import { Eye } from 'lucide-react';
 import { FolderInput } from 'lucide-react';
 import { EllipsisVertical } from 'lucide-react';
-import { motion } from "framer-motion";
-
 
 
 function Employee() {
@@ -37,51 +34,7 @@ function Employee() {
   const [allEmployeeData,setAllEmployeeData] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  // Separate state for settings (different from filters)
-  const [settings, setSettings] = useState({
-    groupBy: '',  // For grouping employees (designation, department, etc.)
-    column1: true,  // Name column
-    column2: true,  // ID column
-    column3: true,  // Designation column
-    column4: true,  // Department column
-    column5: true,  // Email column
-    column6: true,  // Personal Email column
-    column7: true,  // Office Mobile Number column
-    column8: true,  // Current Role column
-  });
-  
-  
-  const [filterSheet,setFilterSheet] = useState(false);
-  const [filters,setFilters] = useState({
-    empDepartment: '',
-    empDesignation: '',
-    empJoinDate: '',
-    empStatus: '',
-    role: '',
-    workLocation:'',
-
-  });
-
-
-
-
-  const applySettings = () => {
-    console.log('Settings applied:', settings);
-    isSidebarOpen(false); // Close sidebar after applying settings
-  };
-
-  const resetSettings = () => {
-    setSettings({
-      setting1: '',
-      column1: false,
-      column2: false,
-      column3: false,
-      setting2: ''
-    });
-    console.log('Settings reset');
-  };
-  
+  const [showSideBar,setShowSidebar]= useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -103,11 +56,6 @@ function Employee() {
       }));
     }
   };
-
-  const handleFilter=(e)=>{
-    const {name, value}= e.target;
-    setFilters({...filters,[name]:value})
-  }
 
   const fetchRoles = async () => {
     try {
@@ -168,10 +116,10 @@ function Employee() {
   const fetchAllEmployees = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/adduser/getAllEmployees');
-      console.log("Response data:", response.data.data); // Log the response
+      console.log("Response data:", response.data); // Log the response
       if (response.data.success) {
         setAllEmployeeData(response?.data?.data);
-        setFilteredEmployees(response?.data?.data);
+        setFilteredData(response?.data?.data);
       } else {
         console.error('Failed to fetch employees:', response.data.error);
       }
@@ -183,11 +131,11 @@ function Employee() {
   const handleSearch = (e)=>{
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
-    const searchResults  = allEmployeeData.filter((employee) => 
+    const filteredData = allEmployeeData.filter((employee) => 
       employee.emp_full_name.toLowerCase().includes(value)
     );
     
-    setFilteredEmployees(searchResults );
+    setFilteredEmployees(filteredData);
   }
   const resetSearch= ()=>{
     setSearchTerm('');
@@ -201,7 +149,7 @@ function Employee() {
 
   useEffect(()=>{
     fetchAllEmployees();
-  },[]);
+  },[])
 
   useEffect(() => {
     if (selectedDepartment) {
@@ -255,114 +203,10 @@ function Employee() {
       alert("An error occurred while submitting the form. Please try again.");
     }
   };
-  const handleFilterSubmit = async (e) => {
-    e.preventDefault();
-    setSearchTerm(''); // Clear search when filters are applied
-
-    console.log("Filters applied:", filters); // Debugging the filter state
-
-  
-    const filteredData = allEmployeeData.filter((employee) => {
-      return (
-        (filters.empDepartment === '' || employee.emp_department === filters.empDepartment) &&
-        (filters.empDesignation === '' || employee.emp_designation === filters.empDesignation) &&
-        (filters.empJoinDate === '' || employee.emp_join_date === filters.empJoinDate) &&
-        (filters.empStatus === '' || employee.emp_status === filters.empStatus) &&
-        (filters.role === '' || employee.role_name === filters.role) &&
-        (filters.workLocation === '' || employee.work_location === filters.workLocation)
-      );
-    });
-  
-    console.log(filteredData)
-    setFilteredEmployees(filteredData);
-    setFilterSheet(false); // Close filter sheet when filters are applied
-      
-  };
-  const resetFilters = () => {
-    setFilters({
-      empDepartment: '',
-      empDesignation: '',
-      empJoinDate: '',
-      empStatus: '',
-      role: '',
-      workLocation: '',
-    });
-    setSearchTerm('');
-    setFilteredEmployees(allEmployeeData); // Reset table to full data
-  };
-  
-  const renderTableData = () => {
-    const groupedData = groupedEmployees();
-    return Object.entries(groupedData).map(([group, employees]) => (
-      <div key={group}>
-        <div className="text-lg font-semibold bg-gray-200 p-2">{group}</div> {/* Group title */}
-        {employees.map((row) => ( // Iterate over employees instead of group
-          <div 
-            key={row.id} 
-            className="grid grid-cols-[50px_150px_80px_150px_150px_250px_300px_200px_150px_150px] bg-white hover:bg-gray-100"
-          >
-            {settings.column1 && <div className="p-2"><input type="checkbox" className="accent-secondary-color" /></div>}
-            {settings.column2 && (
-              <Link to="/employeeOverview">
-                <div className="p-2 flex items-center gap-4 text-blue-600 font-semibold underline">
-                  {row.emp_full_name} <EllipsisVertical className="text-gray-400 size-4" />
-                </div>
-              </Link>
-            )}
-            {settings.column3 && <div className="p-2 text-md">{row.emp_id}</div>}
-            {settings.column4 && <div className="p-2 text-md">{row.emp_designation}</div>}
-            {settings.column5 && <div className="p-2 text-md">{row.emp_department}</div>}
-            {settings.column6 && <div className="p-2 text-md">{row.emp_email}</div>}
-            {settings.column7 && <div className="p-2 text-md">{row.emp_personal_email}</div>}
-            {settings.column8 && <div className="p-2 text-md">{row.emp_phone_no}</div>}
-            {settings.column9 && <div className="p-2 text-md">{row.role_name}</div>}
-          </div>
-        ))}
-      </div>
-    ));
-  };
-  
-
-  const handleSettingChange = (event) => {
-    const { name, type, value, checked } = event.target;
-  
-    setSettings((prevSettings) => ({
-      ...prevSettings,
-      [name]: type === 'checkbox' ? checked : value, // Toggle checkboxes & update radio values
-    }));
-  };
-  
-
-  // Group filtered employees based on selected setting
-  const groupedEmployees = () => {
-    if (!settings.groupBy) return filteredEmployees;
-    return filteredEmployees.reduce((groups, employee) => {
-      const groupKey = employee[settings.groupBy];
-      if (!groups[groupKey]) {
-        groups[groupKey] = [];
-      }
-      groups[groupKey].push(employee);
-      return groups;
-    }, {});
-  };
-
-  const headers = [
-    { label: 'Name', key: 'emp_full_name' },
-    { label: 'ID', key: 'emp_id' },
-    { label: 'Designation', key: 'emp_designation' },
-    { label: 'Department', key: 'emp_department' },
-    { label: 'Email ID', key: 'emp_email' },
-    { label: 'Personal Email', key: 'emp_personal_email' },
-    { label: 'Office Mobile Number', key: 'emp_phone_no' },
-    { label: 'Current Role', key: 'role_name' }
-  ];
-
-
+ 
  
   return (
     <div className="max-h-screen">
-
-      
       <Link to="/">
         <div className="flex items-center gap-1">
           <ArrowLeft />
@@ -403,51 +247,37 @@ function Employee() {
                   <XCircle/>
                 </button>
               )}
-    
-
+             
            </div>
-           {(Object.values(filters).some(value => value !== '')) && (
-  <button
-    onClick={resetFilters}
-    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-  >
-    Reset
-  </button>
-)}
+
  
            <div className='flex relative'>
-     
         <button
           className=" border-2 border-gray-300 p-2 flex"
-          onClick={() => setFilterSheet(true)}
+          onClick={() => setShowDialog(true)}
         >
-          <Filter  className='size-4' />
-           <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-5 text-xs text-white'>
-            {Object.values(filters).filter(value=>value !== '').length}</div>
+          <Filter className='size-4' />
+           <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-5 text-xs text-white'>1</div>
         </button>
         
         <button
           className=" border-2 border-l-0 border-gray-300 p-2 flex"
-          onClick={() => setIsSidebarOpen(true)}
+          onClick={() => setShowDialog(true)}
         >
           <Settings className='size-4' /> 
-          <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-14 text-xs text-white'> {Object.values(settings).filter(value=>value !== '').length}</div>
+          <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-14 text-xs text-white'>1</div>
         </button><button
           className=" border-2 border-l-0 border-gray-300 p-2 flex"
           onClick={() => setShowDialog(true)}
         >
           <Eye className='size-4' />
-        </button>
-        <button
-          className=" border-2 border-l-0 border-gray-300 p-2 flex">
-        <CSVLink
-          data={filteredEmployees}  // <-- Using filteredEmployees here
-          headers={headers}
-          filename={"employees.csv"}
+        </button><button
+          className=" border-2 border-l-0 border-gray-300 p-2 flex"
+          onClick={() => setShowDialog(true)}
         >
-          <FolderInput className='size-4' />
-        </CSVLink>
+          <FolderInput className='size-4' /> 
         </button>
+
            </div>
       </div>
 
@@ -456,7 +286,7 @@ function Employee() {
 {/** employee table */}
 <div className="overflow-x-auto border border-gray-300 mt-10 rounded-lg">
   {/* Table Header */}
-  <div className="grid grid-cols-[50px_150px_80px_150px_150px_250px_300px_200px_150px_150px] bg-primary-color text-btn-text-color font-semibold">
+  <div className="grid grid-cols-[50px_150px_80px_150px_150px_250px_200px_200px_150px_150px] bg-primary-color text-btn-text-color font-semibold">
     <div className="p-2">
       <input type="checkbox" className="accent-secondary-color" />
     </div>
@@ -472,16 +302,15 @@ function Employee() {
 
   {/* Table Rows */}
   <div className="divide-y divide-gray-300">
-  {/* {renderTableData()} */}
     {filteredEmployees.map((row) => (
       <div
         key={row.id}
-        className="grid grid-cols-[50px_150px_80px_150px_150px_250px_300px_200px_150px_150px] bg-white hover:bg-gray-100"
+        className="grid grid-cols-[50px_150px_80px_150px_150px_250px_200px_200px_150px_150px] bg-white hover:bg-gray-100"
       >
         <div className="p-2">
           <input type="checkbox" className="accent-secondary-color" />
         </div>
-       <Link to={`/employeeOverview/${row.emp_id}`}> <div className="p-2 flex items-center gap-4 text-blue-600 font-semibold underline">{row.emp_full_name} <EllipsisVertical  className="text-gray-400 size-4"/></div></Link>
+       <Link to="/employeeOverview"> <div className="p-2 flex items-center gap-4 text-blue-600 font-semibold underline">{row.emp_full_name} <EllipsisVertical  className="text-gray-400 size-4"/></div></Link>
         
        <div className="p-2 text-md">{row.emp_id}</div>
         <div className="p-2 text-md">{row.emp_designation}</div>
@@ -708,259 +537,6 @@ function Employee() {
           </div>
         </div>
       )}
-
-      {filterSheet && (
-          <div className="fixed top-0 right-0 z-50 items-center bg-black bg-opacity-50 backdrop-blur-sm w-full justify-center h-screen">
-                 <motion.div
-        initial={{ x: "100%" }} // Start outside the screen
-        animate={{ x: filterSheet ? "0%" : "100%" }} // Slide in/out
-        transition={{ type: "spring", stiffness: 100, damping: 15 }} // Smooth effect
-        className="relative h-screen w-[400px] sm:w-[500px] bg-white shadow-2xl rounded-l-xl p-6 flex flex-col"
-      >
- 
-
-        {/* Filter Form */}
-        <h2 className="text-lg font-semibold text-gray-800">Filter Employees</h2>
-            <form onSubmit={handleFilterSubmit} className='flex flex-col gap-6 '> 
-                <div>   
-                  <select
-                    id="role"
-                    name="role"
-                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
-                    value={filters.role}
-                    onChange={handleFilter}
-                    
-                  >
-                    <option value="" disabled>Select a Role</option>
-                    {roles.map((role) => (
-                      <option key={role.role_id} value={role.role}>
-                        {role.role}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-
-                  <select
-                    id="empDepartment"
-                    name="empDepartment"
-                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
-                    value={filters.empDepartment}
-                    onChange={(e) => {
-                      handleFilter(e);
-                      setSelectedDepartment(e.target.value);
-                    }}
-                  >
-                    <option value="" disabled>Select Department</option>
-                    {departments.map((department) => (
-                      <option key={department.dep_id} value={department.dep_name}>
-                        {department.dep_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-
-                <div>
-                  
-                  <select
-                    id="empDesignation"
-                    name="empDesignation"
-                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
-                    value={filters.empDesignation}
-                    onChange={handleFilter}
-                    
-                  >
-                    <option value="" disabled>Select Designation</option>
-                    {designations.map((designation) => (
-                      <option key={designation.designation_id} value={designation.designation_name}>
-                        {designation.designation_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="empJoinDate" className="block">Date of Joining *</label>
-                  <input
-                    type="date"
-                    id="empJoinDate"
-                    name="empJoinDate"
-                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
-                    value={filters.empJoinDate}
-                    onChange={handleFilter}
-                    
-                  />
-                </div>
-
-                <div>
-                  <select
-                    id="empStatus"
-                    name="empStatus"
-                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
-                    value={filters.empStatus}
-                    onChange={handleFilter}
-                
-                  >
-                    <option value="" disabled>Select Status</option>
-                    <option value="Inactive" >Inactive</option>
-                    <option value="Active" >Active</option>
-                    
-                  </select>
-                </div>
-                <div>
-                  <select
-                    id="workLocation"
-                    name="workLocation"
-                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
-                    value={filters.workLocation}
-                    onChange={handleFilter}
-                
-                  >
-                    <option value="" disabled>Select Work Location</option>
-                    <option value="Noida" >Noida</option>
-                    <option value="Bihar" >Bihar</option>
-                    
-                  </select>
-                </div>
-
-                <div className="mt-4 flex justify-between">
-                <button  type="submit" className="bg-blue-500 text-white p-2 rounded-md">
-                  Submit
-                </button>
-                <button
-                  type="button"
-                  className="text-red-500"
-                  onClick={() => setFilterSheet(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </form>
-            </motion.div>
-              </div>
-            
-      )}
-
-{isSidebarOpen && (
-  <div className={`fixed top-0 right-0 z-50 w-80 h-full bg-white shadow-lg transition-transform transform ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-    <div className="flex justify-between p-4 bg-gray-100 border-b">
-      <span className="text-lg font-semibold">Settings</span>
-      <span className="cursor-pointer" onClick={() => setIsSidebarOpen(false)}>
-        <Minus width="12" height="12" />
-      </span>
-    </div>
-
-    {/* Sidebar Content */}
-    <div className="p-4 overflow-y-auto">
-      {/* Grouping Setting */}
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold">Group by</h3>
-        <div className="flex flex-col gap-2">
-          <label>
-            <input
-              type="radio"
-              name="groupBy"
-              value="emp_designation"
-              checked={settings.groupBy === 'emp_designation'}
-              onChange={handleSettingChange}
-              className="mr-2"
-            />
-            Designation
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="groupBy"
-              value="emp_department"
-              checked={settings.groupBy === 'emp_department'}
-              onChange={handleSettingChange}
-              className="mr-2"
-            />
-            Department
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="groupBy"
-              value="emp_join_date"
-              checked={settings.groupBy === 'emp_join_date'}
-              onChange={handleSettingChange}
-              className="mr-2"
-            />
-            Join Date
-          </label>
-        </div>
-      </div>
-
-      {/* Column Visibility Settings */}
-      <div className="mb-4">
-        <h3 className="text-sm font-semibold">Columns</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { key: "column1", label: "Name" },
-            { key: "column2", label: "ID" },
-            { key: "column3", label: "Designation" },
-            { key: "column4", label: "Department" },
-            { key: "column5", label: "Email" },
-            { key: "column6", label: "Personal Email" },
-            { key: "column7", label: "Office Mobile Number" },
-            { key: "column8", label: "Current Role" },
-          ].map(({ key, label }) => (
-            <label key={key}>
-              <input
-                type="checkbox"
-                name={key}
-                checked={settings[key]}
-                onChange={handleSettingChange}
-                className="mr-2"
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </div>
-    </div>
-
-    {/* Footer with Reset, Cancel, and Apply Buttons */}
-    <div className="flex justify-between p-4 border-t bg-gray-100">
-      <button
-        onClick={() =>
-          setSettings({
-            groupBy: '',
-            column1: true,
-            column2: true,
-            column3: true,
-            column4: true,
-            column5: true,
-            column6: true,
-            column7: true,
-            column8: true,
-          })
-        }
-        className="text-white bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600"
-      >
-        Reset
-      </button>
-      <div className="flex gap-2">
-        <button
-          onClick={() => setIsSidebarOpen(false)}
-          className="text-gray-600 bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={() => setIsSidebarOpen(false)}
-          className="text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Apply
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
     </div>
   );
 }
