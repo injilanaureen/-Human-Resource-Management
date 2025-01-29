@@ -237,6 +237,61 @@ addUserRoutes.get('/getAllEmployees', (req, res) => {
   });
   
 });
+addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
+  const { emp_id } = req.params;
+  const query = `
+    SELECT 
+      e.emp_id,
+      e.emp_full_name,
+      e.emp_personal_email,
+      e.emp_phone_no,
+      e.emp_addhar_no,
+      e.emp_pan_card_no,
+      d.dep_name AS emp_department,
+      des.designation_name AS emp_designation,
+      e.emp_join_date,
+      e.emp_status,
+      r.role AS role_name,
+      e.emp_email,
+      e.emp_password,
+      r.permission
+    FROM 
+      master e
+    LEFT JOIN 
+      department d ON e.emp_department = d.dep_id
+    LEFT JOIN 
+      designation des ON e.emp_designation = des.designation_id
+    LEFT JOIN 
+      role_and_permission r ON e.role_id = r.role_id
+      where e.emp_id= ?;
+      
+  `;
+  
+  db.query(query,[emp_id] ,(err, result) => {
+    if (err) {
+      console.error("Error fetching employee:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to fetch employee",
+        details: err,
+      });
+    }
+    
+    if (result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Successfully fetched employee",
+      data: result[0], // Return single object instead of array
+    });
+  });
+  
+});
 
 // Update user status
 addUserRoutes.put('/updateUserStatus', (req, res) => {
