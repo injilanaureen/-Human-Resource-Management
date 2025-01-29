@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
+
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -10,52 +11,46 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
-  const { setUser } = useAuth();
+  const { setUser } = useAuth(); // Get setUser from context
   const navigate = useNavigate();
 
- const handleSubmit = async (event) => {
-  event.preventDefault(); // Prevent page reload
-  const trimmedEmail = email.trim();
-  const trimmedPassword = password.trim();
+  const handleSubmit = async (event) => {
+    event.preventDefault(); // Prevent page reload
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
 
-  try {
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    // Send login request to the backend
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
-      email: trimmedEmail,
-      password: trimmedPassword,
-    });
+      // Send login request to the backend
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email: trimmedEmail,
+        password: trimmedPassword,
+      });
 
-    const { isAuthenticated, emp_id, emp_full_name, role } = response.data;
-    console.log(response.data);
-    
-    if (isAuthenticated) {
-      const userData = { isAuthenticated, emp_id, emp_full_name, role };
+      const userData = response.data;
+            console.log(userData);
+      
+            if (userData.isAuthenticated) {
+              // Save user data to context
+              setUser(userData);
 
-      // Save user data to context
-      setUser(userData);
-
-      // Persist user data to localStorage
-   
-
-      // Redirect based on role
-      if (role === 'admin' || role === 'employee' || role === 'hr') {
-        navigate('/');
-       
+        // Save user data to context
+        setUser(userData); 
+        // Redirect based on role
+        if (userData.role === 'admin' || userData.role === 'employee' || userData.role === 'hr') {
+          navigate('/');
+        }
+      } else {
+        setError('Invalid credentials');
       }
-    } else {
-      setError('Invalid credentials');
+    } catch (error) {
+      setError('Login failed. Please try again.');
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    setError('Login failed. Please try again.');
-    console.error('Error:', error);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-  
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -107,11 +102,7 @@ const LoginForm = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 px-4 rounded-md text-white font-medium ${
-              isLoading
-                ? 'bg-blue-400 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700'
-            } transition-colors`}
+            className={`w-full py-3 px-4 rounded-md text-white font-medium ${isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} transition-colors`}
           >
             {isLoading ? 'Logging in...' : 'Log In'}
           </button>
