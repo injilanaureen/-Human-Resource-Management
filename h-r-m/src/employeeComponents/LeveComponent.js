@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { ArrowLeft }   from 'lucide-react';
 // Modal Component
 const Modal = ({ isOpen, onClose, children }) => {
   if (!isOpen) return null;
@@ -188,22 +189,25 @@ const LeaveManagement = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-8">
-      <h1 className="text-4xl font-bold text-center text-blue-600 mb-8">
-        Leave Management System
-      </h1>
+    <div className="max-h-screen">
+
+<div className="hidden lg:flex items-center gap-1">
+  <ArrowLeft />
+  <p>Employee</p>
+</div>
+
 
       {/* Leave Balance Section */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-          Leave Balance
-        </h2>
-        <ul className="space-y-2">
-          <li className="text-lg text-gray-700">
-            Total leave: {leaveBalance.total_leave} days
-          </li>
-        </ul>
-      </div>
+      <div className="bg-white shadow-md rounded-lg p-6 mb-8 max-w-4xl mx-auto">
+  <h2 className="text-2xl font-semibold text-gray-800 mb-4">Leave Balance</h2>
+  <ul className="space-y-2">
+    <li className="flex justify-between text-lg text-gray-700">
+      <span>Total leave:</span>
+      <span>{leaveBalance.total_leave} days</span>
+    </li>
+  </ul>
+</div>
+
 
       {/* Leave Request Form */}
       <div className="bg-white shadow-md rounded-lg p-6 mb-8">
