@@ -1,35 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import axios from "axios"; 
+import React from 'react'
 
 function EmployeeOverview() {
-const managingDirector = "Subir Majumdar"
-  const manager = "Dr Bandana Kedia"; 
-  const { id } = useParams(); 
-  console.log(id);
-  const [employee, setEmployee] = useState(null); 
-
-  const getEmployee = async () => {
-    try {
-      const response = await axios.get(`http://localhost:5000/api/adduser/getSingleEmployee/${id}`);
-      console.log(response.data);
-      if (response.data.success) {
-        setEmployee(response.data.data);
-      } else {
-        console.error("Failed to fetch employee:", response.data.error);
-      }
-    } catch (error) {
-      console.error("Failed to fetch employee:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (id) getEmployee();
-  }, [id]); 
-
-  if (!employee) return <div>Loading...</div>;
-
   return (
+
     <div className="p-4 space-y-6">
       {/* Header Section */}
       <div className="flex justify-between items-center">
@@ -198,6 +171,10 @@ const managingDirector = "Subir Majumdar"
       </div>
     </div>
   );
+
+    <div>Evolve</div>
+  )
+
 }
 
-export default EmployeeOverview;
+export default Evolve
