@@ -15,32 +15,29 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent page reload
+    event.preventDefault();
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
-
+  
     try {
       setIsLoading(true);
-
-      // Send login request to the backend
+  
       const response = await axios.post('http://localhost:5000/api/auth/login', {
         email: trimmedEmail,
         password: trimmedPassword,
       });
-
+  
       const userData = response.data;
-            console.log(userData);
-      
-            if (userData.isAuthenticated) {
-              // Save user data to context
-              setUser(userData);
-
-        // Save user data to context
-        setUser(userData); 
+  
+      if (userData.isAuthenticated) {
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+  
+        // Update context state
+        setUser(userData);
+  
         // Redirect based on role
-        if (userData.role === 'admin' || userData.role === 'employee' || userData.role === 'hr') {
-          navigate('/');
-        }
+        navigate('/');
       } else {
         setError('Invalid credentials');
       }
@@ -51,6 +48,7 @@ const LoginForm = () => {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">

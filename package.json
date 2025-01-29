@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-client-session": "^0.0.8",
+    "react-session": "^0.0.1"
+  }
+}

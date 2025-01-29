@@ -32,7 +32,7 @@ const HrmRouters = () => {
           <Route path="taskbox" element={<TaskBox />} />
           <Route path="employee" element={<Employee />} />
           <Route path="attendance" element={<Attendance />} />
-          <Route path="leve" element={<HRMLeaveManagement />} />
+          <Route path="leave" element={<HRMLeaveManagement />} />
           <Route path="hrPolicies" element={<HrPolicies />} />
           <Route path="hrDocuments" element={<HrDocuments />} />
           <Route path="recruitment" element={<Recruitment />} />

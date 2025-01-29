@@ -29,12 +29,10 @@ app.use('/api/auth', authRoutes); // Use the routes for authentication
 
 app.use('/api/adduser', addUserRoutes);
 
-
  app.use('/api/leave', leaveRoutes);
-<<<<<<< HEAD
+
  app.use('/api/upload', uploadDocumentRouter); // Use the routes for uploading documents
-=======
->>>>>>> c1cdc2fc4a9a917ee893fabf197d0aa0d2ad631f
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
