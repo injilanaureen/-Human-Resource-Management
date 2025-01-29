@@ -8,7 +8,9 @@ const Modal = ({ isOpen, onClose, children }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
-        <div className="flex justify-end">
+        {/* Flex container for the header */}
+        <div className="flex justify-between items-center">
+          <div className="text-xl font-semibold">Leave Request Reason</div>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -16,7 +18,10 @@ const Modal = ({ isOpen, onClose, children }) => {
             ✕
           </button>
         </div>
-        <div className="mt-4">{children}</div>
+        {/* Content below the header */}
+        <div className="mt-4 text-gray-700 whitespace-pre-wrap">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -391,9 +396,8 @@ const LeaveManagement = () => {
         )}
       </div>
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <div className="text-xl font-semibold mb-4">Leave Request Reason</div>
-        <div className="text-gray-700 whitespace-pre-wrap">{selectedReason}</div>
-      </Modal>
+  {selectedReason}
+</Modal>;
     </div>
   );
 };

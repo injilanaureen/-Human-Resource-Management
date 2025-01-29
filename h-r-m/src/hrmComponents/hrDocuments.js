@@ -1,133 +1,109 @@
 import React, { useState } from 'react';
-import { Table, Button, Upload, message, Modal, Input, Space } from 'antd';
-import { UploadOutlined, DeleteOutlined, EditOutlined, SearchOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
-const HrDocuments = () => {
-  const [documents, setDocuments] = useState([
-    { id: 1, title: 'Employee Handbook', fileUrl: '/path/to/handbook.pdf' },
-    { id: 2, title: 'Attendance Policy', fileUrl: '/path/to/attendance-policy.pdf' },
-    { id: 3, title: 'Leave Policy', fileUrl: '/path/to/leave-policy.pdf' },
-  ]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
+const HRDocuments = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [file, setFile] = useState(null); // Store a single file
+  const [title, setTitle] = useState('');
 
-  // Handle document upload
-  const handleUpload = ({ file, onSuccess, onError }) => {
-    setLoading(true);
-    // Simulate file upload process
-    setTimeout(() => {
-      const newDoc = { id: documents.length + 1, title: file.name, fileUrl: '/path/to/' + file.name };
-      setDocuments([...documents, newDoc]);
-      setLoading(false);
-      message.success('File uploaded successfully');
-      onSuccess();
-    }, 1000);
+  const showModal = () => {
+    setIsModalVisible(true);
   };
 
-  // Handle document delete
-  const handleDelete = (docId) => {
-    Modal.confirm({
-      title: 'Are you sure you want to delete this document?',
-      content: 'This action cannot be undone.',
-      okText: 'Yes',
-      cancelText: 'No',
-      onOk: () => {
-        setDocuments(documents.filter(doc => doc.id !== docId));
-        message.success('Document deleted successfully');
-      },
+  const handleOk = async () => {
+    if (!title) {
+      alert('Please enter a document title!');
+      return;
+    }
+
+    if (!file) {
+      alert('Please upload a document.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('file', file); // Use 'file' field to match backend
+
+    // Log the FormData contents
+    formData.forEach((value, key) => {
+      console.log(`${key}:`, value);
     });
-  };
 
-  // Handle document edit/update (simple filename change for demo)
-  const handleEdit = (docId) => {
-    const newTitle = prompt('Enter the new document title');
-    if (newTitle) {
-      const updatedDocuments = documents.map(doc =>
-        doc.id === docId ? { ...doc, title: newTitle } : doc
-      );
-      setDocuments(updatedDocuments);
-      message.success('Document updated successfully');
+    try {
+      // Simulate a successful upload
+      alert('Document uploaded successfully!');
+      setIsModalVisible(false);
+      setTitle('');
+      setFile(null); // Clear file only after upload is successful
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Failed to upload document');
     }
   };
 
-  // Handle search
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+  const handleCancel = () => {
+    setIsModalVisible(false);
   };
 
-  const filteredDocuments = documents.filter(doc =>
-    doc.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const columns = [
-    {
-      title: 'Document Title',
-      dataIndex: 'title',
-      key: 'title',
-      render: (text) => <span>{text}</span>,
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            icon={<EditOutlined />}
-            onClick={() => handleEdit(record.id)}
-            style={{ marginRight: 8 }}
-          >
-            Edit
-          </Button>
-          <Button
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-            type="danger"
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]); // Only store the first file
+  };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2 style={{ marginBottom: 20 }}>Manage HR Documents</h2>
-
-      {/* Search Bar */}
-      <Input
-        placeholder="Search by document title"
-        value={searchTerm}
-        onChange={handleSearch}
-        style={{ width: 300, marginBottom: 20 }}
-        prefix={<SearchOutlined />}
-      />
-
-      {/* Upload Document */}
-      <Upload
-        customRequest={handleUpload}
-        showUploadList={false}
-        accept=".pdf, .doc, .docx"
+    <div>
+      <button
+        onClick={showModal}
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-700"
       >
-        <Button
-          icon={<UploadOutlined />}
-          type="primary"
-          style={{ marginBottom: 20 }}
-          loading={loading}
-        >
-          {loading ? 'Uploading...' : 'Upload Document'}
-        </Button>
-      </Upload>
+        Documents
+      </button>
 
-      {/* Table of Documents */}
-      <Table
-        columns={columns}
-        dataSource={filteredDocuments}
-        rowKey="id"
-        pagination={false}
-      />
+      {isModalVisible && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl w-96">
+            <h2 className="text-xl font-semibold mb-4">Update Document</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Document Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter document title"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Upload Document</label>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="mt-1 block w-full text-sm text-gray-700 border border-gray-300 rounded-lg"
+                value={file ? file.name : ''} // Make sure the value is properly set to file's name or empty
+              />
+            </div>
+
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleCancel}
+                className="px-4 py-2 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleOk}
+                className="px-4 py-2 bg-blue-500 rounded-lg text-white hover:bg-blue-700"
+              >
+                Upload
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default HrDocuments;
+
+export default HRDocuments;

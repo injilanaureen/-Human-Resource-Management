@@ -5,7 +5,7 @@ import authRoutes from './routes/authRoutes.js';  // Add the .js extension
 import session from 'express-session';
 import leaveRoutes from './routes/leaveRoutes.js';  // Add the .js extension
 import cookieParser from 'cookie-parser';
-
+import uploadDocumentRouter from './routes/uploadDocumentRouter.js';
 const app = express();
 const PORT = 5000;
 
@@ -26,6 +26,8 @@ app.use(
 
 app.use('/api/auth', authRoutes); // Use the routes for authentication
  app.use('/api/leave', leaveRoutes);
+ app.use('/api/upload', uploadDocumentRouter); // Use the routes for uploading documents
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
