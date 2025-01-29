@@ -22,6 +22,11 @@ import EPFOWebite from '../hrmComponents/epfoWebite';
 import Policies from '../hrmComponents/policies';
 import BlueBox from '../hrmComponents/blueBox';
 
+import EmployeeOverview from '../hrmComponents/employeeOverview';
+import Personaldetails from '../hrmComponents/personalDetails';
+
+
+
 const HrmRouters = () => {
   return (
   
@@ -47,6 +52,11 @@ const HrmRouters = () => {
           <Route path="epfoWebite" element={<EPFOWebite />} />
           <Route path="policies" element={<Policies />} />
           <Route path="bluebox" element={<BlueBox />} />
+
+          <Route path="employeeoverview/:id" element={<EmployeeOverview />} />
+          <Route path="personaldetails/:id" element={<Personaldetails />} />
+
+
         </Route>
       </Routes>
    
