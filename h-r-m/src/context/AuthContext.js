@@ -4,6 +4,10 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState({
+
+    isAuthenticated: true,
+    role: null, // 'admin', 'employee', or 'hr'
+
     isAuthenticated: false,
     emp_id: null,
     emp_full_name: null,
@@ -20,6 +24,7 @@ export const AuthProvider = ({ children }) => {
     emp_email: null,
     emp_password: null,
     total_leave : null
+
   });
 
   return (

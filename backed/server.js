@@ -1,7 +1,8 @@
 // server.js
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './routes/authRoutes.js';  // Add the .js extension
+import authRoutes from './routes/authRoutes.js'; // Add the .js extension
+import addUserRoutes from './routes/addUserRoutes.js';
 import session from 'express-session';
 import leaveRoutes from './routes/leaveRoutes.js';  // Add the .js extension
 import cookieParser from 'cookie-parser';
@@ -25,7 +26,12 @@ app.use(
 );
 
 app.use('/api/auth', authRoutes); // Use the routes for authentication
+
+app.use('/api/adduser', addUserRoutes);
+
+
  app.use('/api/leave', leaveRoutes);
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
