@@ -76,6 +76,7 @@ addUserRoutes.get('/fetchDepartment', (req, res) => {
   });
 });
 
+
 // Fetch designations for a specific department
 addUserRoutes.get('/fetchDesignation', (req, res) => {
   const { dept_id } = req.query;
@@ -109,14 +110,14 @@ addUserRoutes.get('/fetchDesignation', (req, res) => {
 // Submit new user data
 addUserRoutes.post('/submitUser', (req, res) => {
   console.log("Received user data:", req.body);
-
   const {
     role,
     rolePermission,
     empFullName,
     empPersonalEmail,
-    empEmail,
-    empPassword,
+  
+    empConfirmationdate,
+    empofferedCTC,
     empPhoneNo,
     empAadhaarNo,
     empPanCardNo,
@@ -127,7 +128,7 @@ addUserRoutes.post('/submitUser', (req, res) => {
   } = req.body;
 
   // Validate required fields
-  if (!empFullName || !empPersonalEmail || !empEmail || !empPassword || !role) {
+  if (!empFullName || !empPersonalEmail  || !role) {
     return res.status(400).json({
       success: false,
       error: "Missing required fields"
@@ -138,8 +139,8 @@ addUserRoutes.post('/submitUser', (req, res) => {
     INSERT INTO master (
       emp_full_name,
       emp_personal_email,
-      emp_email,
-      emp_password,
+      emp_confirmation_date,
+      emp_offered_ctc,
       emp_phone_no,
       emp_addhar_no,
       emp_pan_card_no,
@@ -150,14 +151,14 @@ addUserRoutes.post('/submitUser', (req, res) => {
       role_id,
       role_permission
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
   `;
 
   const values = [
     empFullName,
     empPersonalEmail,
-    empEmail,
-    empPassword,
+    empConfirmationdate,
+    empofferedCTC,
     empPhoneNo || null,
     empAadhaarNo || null,
     empPanCardNo || null,
@@ -184,8 +185,7 @@ addUserRoutes.post('/submitUser', (req, res) => {
       message: "User data submitted successfully",
       data: {
         id: result.insertId,
-        empEmail,
-        empPassword
+     
       }
     });
   });
@@ -193,6 +193,68 @@ addUserRoutes.post('/submitUser', (req, res) => {
 //fetch employee
 
 addUserRoutes.get('/getAllEmployees', (req, res) => {
+  const query = `
+SELECT 
+    e.id,
+    e.emp_id,
+    e.emp_full_name,
+    e.emp_department AS emp_departmentid,
+    e.emp_designation AS emp_designationid,
+    e.emp_confirmation_date,
+    e.emp_empstatus,
+    e.emp_offered_ctc,
+    e.emp_personal_email,
+    e.emp_phone_no,
+    e.emp_addhar_no,
+    e.emp_pan_card_no,
+    d.dep_name AS emp_department,
+    des.designation_name AS emp_designation,
+    e.emp_join_date,
+    e.emp_status,
+    r.role AS role_name,
+    e.emp_email,
+    e.emp_password,
+    r.permission,
+    tl.emp_full_name AS team_leader_name,  -- Fetch Team Leader Name
+    m.emp_full_name AS manager_name        -- Fetch Manager Name
+FROM 
+    master e
+LEFT JOIN 
+    department d ON e.emp_department = d.dep_id
+LEFT JOIN 
+    designation des ON e.emp_designation = des.designation_id
+LEFT JOIN 
+    role_and_permission r ON e.role_id = r.role_id
+LEFT JOIN 
+    master tl ON e.team_leader_id = tl.id  -- Joining master table for Team Leader
+LEFT JOIN 
+    master m ON e.manager_id = m.id;       -- Joining master table for Manager
+
+
+  `;
+  
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error fetching employees:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to fetch employees",
+        details: err,
+      });
+    }
+    console.log("Employees fetched:", result); // Log the result here
+    return res.status(200).json({
+      success: true,
+      message: "Successfully fetched employees",
+      data: result,
+    });
+  });
+  
+});
+<<<<<<< HEAD
+
+addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
+  const { emp_id } = req.params;
   const query = `
     SELECT 
       e.emp_id,
@@ -216,64 +278,177 @@ addUserRoutes.get('/getAllEmployees', (req, res) => {
     LEFT JOIN 
       designation des ON e.emp_designation = des.designation_id
     LEFT JOIN 
-      role_and_permission r ON e.role_id = r.role_id;
+      role_and_permission r ON e.role_id = r.role_id
+      where e.emp_id= ?;
+      
   `;
   
-  db.query(query, (err, result) => {
+  db.query(query,[emp_id] ,(err, result) => {
     if (err) {
-      console.error("Error fetching employees:", err);
+      console.error("Error fetching employee:", err);
       return res.status(500).json({
         success: false,
-        error: "Failed to fetch employees",
+        error: "Failed to fetch employee",
         details: err,
       });
     }
-    console.log("Employees fetched:", result); // Log the result here
+    
+    if (result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found",
+      });
+    }
+
     return res.status(200).json({
       success: true,
-      message: "Successfully fetched employees",
-      data: result,
+      message: "Successfully fetched employee",
+      data: result[0], // Return single object instead of array
     });
   });
   
 });
+=======
+>>>>>>> 47ed275c89cbc5431d330f2b236ef8c16bcd09c3
 
 // Update user status
 addUserRoutes.put('/updateUserStatus', (req, res) => {
-  const { empId, status } = req.body;
 
-  if (!empId || !status) {
+  let { id, empStatus, empManager, empTeamLeader, workEmail, empPassword } = req.body;
+  console.log(req.body)
+
+  if (!id) {
     return res.status(400).json({
       success: false,
-      error: "Employee ID and status are required"
+      error: "Employee ID (id) is required"
     });
   }
 
-  const query = "UPDATE master SET emp_status = ? WHERE emp_id = ?";
+  // Validate required fields
+  const missingFields = [];
+  if (!empStatus) missingFields.push("empStatus");
+  if (!empManager) missingFields.push("empManager");
+  if (!empTeamLeader) missingFields.push("empTeamLeader");
+  if (!workEmail) missingFields.push("workEmail");
+  if (!empPassword) missingFields.push("empPassword");
 
-  db.query(query, [status, empId], (err, result) => {
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      success: false,
+      error: "Required fields missing",
+      missingFields
+    });
+  }
+
+  // Fetch emp_id first before updating
+  const getEmpIdQuery = "SELECT emp_id FROM master WHERE id = ?";
+  db.query(getEmpIdQuery, [id], (err, result) => {
     if (err) {
       console.error("Database error:", err);
       return res.status(500).json({
         success: false,
-        error: "Failed to update user status",
+        error: "Failed to fetch employee record",
         details: err
       });
     }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        success: false,
-        error: "Employee not found"
+    let newEmpId = result[0]?.emp_id || null;
+
+    if (!newEmpId) {
+      // Generate emp_id if not present
+      const getLastEmployeeIdQuery = "SELECT emp_id FROM master WHERE emp_id IS NOT NULL ORDER BY emp_id DESC LIMIT 1";
+
+      db.query(getLastEmployeeIdQuery, (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          return res.status(500).json({
+            success: false,
+            error: "Failed to fetch last employee ID",
+            details: err
+          });
+        }
+
+        if (result.length > 0 && result[0].emp_id) {
+          const lastEmpNumber = parseInt(result[0].emp_id.split('-')[1]); 
+          newEmpId = `NKT-${String(lastEmpNumber + 1).padStart(3, '0')}`;
+        } else {
+          newEmpId = `NKT-001`;
+        }
+
+        console.log('Generated emp_id:', newEmpId);
+        // Now update employee details with the generated emp_id
+        updateEmployeeDetails(newEmpId);
       });
+    } else {
+      // emp_id already exists, proceed with update
+      console.log('Using existing emp_id:', newEmpId);
+      updateEmployeeDetails(newEmpId);
+    }
+  });
+
+  function updateEmployeeDetails(empIdToUse) {
+    const updateQuery = `
+      UPDATE master SET 
+        emp_status = ?, 
+        manager_id = ?, 
+        team_leader_id= ?, 
+        emp_email = ?, 
+        emp_password = ?, 
+        emp_id = ?
+      WHERE id = ?
+    `;
+
+    db.query(updateQuery, [empStatus, empManager, empTeamLeader, workEmail, empPassword, empIdToUse, id], (err, result) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({
+          success: false,
+          error: "Failed to update employee status",
+          details: err
+        });
+      }
+
+      return res.json({
+        success: true,
+        message: "Employee details updated successfully",
+        empId: empIdToUse
+      });
+    });
+  }
+});
+addUserRoutes.put('/updateEmploymentStatus', (req, res) => {
+  let { id, newDesignation, newStatus, newMobileNumber, newTeamLeader, newManager } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ success: false, error: "Employee ID is required" });
+  }
+
+  const updateQuery = `
+    UPDATE master 
+    SET 
+      emp_empstatus = ?, 
+      emp_designation = ?, 
+      emp_phone_no = ?, 
+      team_leader_id = ?, 
+      manager_id = ? 
+    WHERE id = ?
+  `;
+
+  db.query(updateQuery, [newStatus, newDesignation, newMobileNumber, newTeamLeader, newManager, id], (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ success: false, error: "Failed to update employment details", details: err });
     }
 
-    return res.json({
-      success: true,
-      message: "User status updated successfully"
-    });
+    return res.json({ success: true, message: "Employment details updated successfully" });
   });
 });
+
+
+
+
+
+
 
 // Delete user
 addUserRoutes.delete('/deleteUser/:empId', (req, res) => {
