@@ -10,7 +10,6 @@ import { Eye } from 'lucide-react';
 import { FolderInput } from 'lucide-react';
 import { EllipsisVertical } from 'lucide-react';
 import { motion } from "framer-motion";
-import UpdateEmploymentStatusModal from "./UpdateEmploymentStatusModal";
 
 
 
@@ -44,9 +43,7 @@ function Employee() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [employmentStatus, setEmployementStatus] = useState(false);
-
-
- 
+  const [newStatus, setNewStatus] = useState("");
 
   // Separate state for settings (different from filters)
   const [settings, setSettings] = useState({
@@ -201,7 +198,9 @@ function Employee() {
     fetchRoles();
     fetchDepartment();
   }, []);
-
+  useEffect(() => {
+    handleUpdateEmploymentStatus();
+  }, []);
 
   useEffect(()=>{
     fetchAllEmployees();
@@ -215,9 +214,31 @@ function Employee() {
 
   const openEmploymentModal = (employee) => {
     setSelectedEmployee(employee);
+    setNewStatus(employee.emp_empstatus || "In Probation");
     setEmployementStatus(true);
   };
 
+  const handleUpdateEmploymentStatus = async (e) => {
+    e.preventDefault();
+    if (!selectedEmployee) return;
+  
+    try {
+      const response = await axios.put("http://localhost:5000/api/adduser/updateEmploymentStatus", {
+        id: selectedEmployee.id,
+        new_status: newStatus,
+      });
+  
+      if (response.status === 200) {
+        alert("Employment status updated successfully");
+        setEmployementStatus(false);
+      } else {
+        alert("Failed to update employment status");
+      }
+    } catch (error) {
+      console.error("Error updating employment status:", error);
+      alert("An error occurred while updating employment status.");
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -296,37 +317,7 @@ function Employee() {
     setFilteredEmployees(allEmployeeData); // Reset table to full data
   };
   
-  const renderTableData = () => {
-    const groupedData = groupedEmployees();
-    return Object.entries(groupedData).map(([group, employees]) => (
-      <div key={group}>
-        <div className="text-lg font-semibold bg-gray-200 p-2">{group}</div> {/* Group title */}
-        {employees.map((row) => ( // Iterate over employees instead of group
-          <div 
-            key={row.id} 
-            className="grid grid-cols-[50px_150px_80px_150px_150px_250px_300px_200px_150px_150px] bg-white hover:bg-gray-100"
-          >
-            {settings.column1 && <div className="p-2"><input type="checkbox" className="accent-secondary-color" /></div>}
-            {settings.column2 && (
-              <Link to="/employeeOverview">
-                <div className="p-2 flex items-center gap-4 text-blue-600 font-semibold underline">
-                  {row.emp_full_name} <EllipsisVertical className="text-gray-400 size-4" />
-                </div>
-              </Link>
-            )}
-            {settings.column3 && <div className="p-2 text-md">{row.emp_id}</div>}
-            {settings.column4 && <div className="p-2 text-md">{row.emp_designation}</div>}
-            {settings.column5 && <div className="p-2 text-md">{row.emp_department}</div>}
-            {settings.column6 && <div className="p-2 text-md">{row.emp_email}</div>}
-            {settings.column7 && <div className="p-2 text-md">{row.emp_personal_email}</div>}
-            {settings.column8 && <div className="p-2 text-md">{row.emp_phone_no}</div>}
-            {settings.column9 && <div className="p-2 text-md">{row.role_name}</div>}
-          </div>
-        ))}
-      </div>
-    ));
-  };
-  
+
 
   const handleSettingChange = (event) => {
     const { name, type, value, checked } = event.target;
@@ -361,6 +352,8 @@ function Employee() {
     { label: 'Office Mobile Number', key: 'emp_phone_no' },
     { label: 'Current Role', key: 'role_name' }
   ];
+
+
  
   return (
     <div className="max-h-screen">
@@ -459,6 +452,7 @@ function Employee() {
 {/** employee table */}
 <div>
   
+
   {/* Table Section */}
   <div className="overflow-x-auto border border-gray-300 mt-10 rounded-lg">
     <table className="min-w-full table-auto text-sm">
@@ -533,11 +527,56 @@ function Employee() {
 
  {/* Employment Status Modal */}
  {employmentStatus && (
-        <UpdateEmploymentStatusModal
-        selectedEmployee={selectedEmployee}
-        setEmployementStatus={setEmployementStatus}/>
-        )}
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center">
+          <div className="bg-white p-8 rounded-md w-3/4 md:w-1/2 lg:w-1/3">
+            <h2 className="text-lg mb-4 font-semibold">Edit Employment Status</h2>
+            <form onSubmit={handleUpdateEmploymentStatus}>
+              <div className="mb-4">
+                <label htmlFor="empRole" className="block mb-1">
+                  Change Employment Status
+                </label>
+                <select
+                  id="empRole"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                >
+                  
+                  <option value="Permanent">Permanent</option>
+                </select>
+              </div>
+              <div className="mb-4">
+                <label htmlFor="empRole" className="block mb-1">
+                  Change Employment Status
+                </label>
+                <select
+                  id="empRole"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value)}
+                >
+                  
+                  <option value="Permanent">Permanent</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 bg-gray-400 text-white rounded"
+                  onClick={() => setEmployementStatus(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 bg-indigo-500 text-white rounded">
+                  Save
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
   
+
       {showDialog && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center">
           <div className="bg-white p-8 rounded-md w-3/4 md:w-1/2 lg:w-2/3">

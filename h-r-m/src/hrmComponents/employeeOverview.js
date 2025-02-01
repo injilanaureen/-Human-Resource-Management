@@ -35,7 +35,7 @@ const managingDirector = "Subir Majumdar"
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Overview</h2>
         <div className="space-x-2">
-         <Link to={`/personaldetails/${row.emp_id}`}><button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm">VIEW PERSONAL DETAILS</button></Link>
+         <Link to="/personaldetails"><button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm">VIEW PERSONAL DETAILS</button></Link>
           <button className="bg-purple-500 text-white px-3 py-1.5 rounded text-sm">DOWNLOAD</button>
         </div>
       </div>
@@ -71,10 +71,7 @@ const managingDirector = "Subir Majumdar"
             <p className="text-gray-500 text-xs">Grade</p>
             <p className="text-sm">{employee.grade || "JG5"}</p>
           </div>
-          <div>
-            <p className="text-gray-500 text-xs">Grade Code</p>
-            <p className="text-sm">{employee.grade_code || "GRADE_5"}</p>
-          </div>
+      
           <div>
             <p className="text-gray-500 text-xs">Date of Joining</p>
             <p className="text-sm">{new Date(employee.emp_join_date).toLocaleDateString() || "28-02-2022"}</p>
@@ -86,6 +83,14 @@ const managingDirector = "Subir Majumdar"
           <div>
             <p className="text-gray-500 text-xs">Company</p>
             <p className="text-sm">{employee.company || "NikatBy Technologies  Pvt. Ltd."}</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Team Leader</p>
+            <p className="text-sm">{employee.leader || "Adnan Siddiqui"}</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Manager</p>
+            <p className="text-sm">{employee.manager || "Nitesh Singh"}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Assigned Permission</p>
@@ -114,7 +119,7 @@ const managingDirector = "Subir Majumdar"
             </div>
             <div>
               <p className="text-gray-500 text-xs">Date of Birth</p>
-              <p className="text-sm">{employee.dob || "17-Mar"}</p>
+              <p className="text-sm">{employee.dob || "22-04-1994"}</p>
             </div>
           </div>
         </div>

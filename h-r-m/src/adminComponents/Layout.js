@@ -56,11 +56,11 @@ const Layout = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm fixed w-full z-20">
+      <header className="bg-indigo-400 shadow-sm fixed w-full z-20">
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-16 px-4">
             {/* Logo */}
-            <Link to="/" className="text-xl font-bold text-blue-600">
+            <Link to="/" className="text-xl font-bold text-white">
               Admin Dashboard
             </Link>
 
