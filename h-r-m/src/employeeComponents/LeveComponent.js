@@ -32,6 +32,15 @@ const LeaveManagement = () => {
   const [leaveBalance, setLeaveBalance] = useState({
     total_leave: 0,
   });
+  const [earnedLeave, setEarnedLeave] = useState({
+    earned_leave: 0,
+  });
+  const [casualLeave, setCasualLeave] = useState({
+    casual_leave: 0,
+  });
+  const [sickLeave, setSickLeave] = useState({
+    sick_leave: 0,
+  });
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,9 +72,20 @@ const LeaveManagement = () => {
         const response = await axios.get(
           `http://localhost:5000/api/leave/totalLeave/${user.emp_id}`
         );
+        console.log("Leave Requests:", response.data);
         setLeaveBalance({
           total_leave: response.data.total_leave,
         });
+        setEarnedLeave({
+          earned_leave: response.data.earned_leave,
+        });
+        setCasualLeave({
+          casual_leave: response.data.casual_leave,
+        });
+        setSickLeave({
+          sick_leave: response.data.sick_leave,
+        });
+        
       } catch (error) {
         console.error("Error fetching total leave:", error);
       }
@@ -83,6 +103,8 @@ const LeaveManagement = () => {
           const response = await axios.get(
             `http://localhost:5000/api/leave/leaveRequests/${user.emp_id}`
           );
+         
+          
           setLeaveRequests(response.data); // Store the leave requests in state
         } catch (error) {
           console.error("Error fetching leave requests:", error);
@@ -134,10 +156,10 @@ const LeaveManagement = () => {
     }
 
     // Validate leave balance
-    if (daysRequested > leaveBalance.total_leave) {
-      alert("Insufficient leave balance!");
-      return;
-    }
+    // if (daysRequested > leaveBalance.total_leave) {
+    //   alert("Insufficient leave balance!");
+    //   return;
+    // }
 
     // Ensure dates are in MySQL compatible format (YYYY-MM-DD)
     const startDateFormatted = new Date(formData.startDate).toISOString().split('T')[0];
@@ -201,8 +223,17 @@ const LeaveManagement = () => {
       <div className="bg-white shadow-md rounded-lg p-6 mb-8 max-w-4xl mx-auto">
   <h2 className="text-2xl font-semibold text-gray-800 mb-4">Leave Balance</h2>
   <ul className="space-y-2">
-    <li className="flex justify-between text-lg text-gray-700">
-      <span>Total leave:</span>
+  <li className="flex justify-between text-lg text-gray-700">
+    <span>Casual leave:</span>
+      <span>{casualLeave.casual_leave} days</span>
+    </li><li className="flex justify-between text-lg text-gray-700">
+    <span>Sick leave:</span>
+      <span>{sickLeave.sick_leave} days</span>
+    </li><li className="flex justify-between text-lg text-gray-700">
+    <span>Earned leave:</span>
+      <span>{earnedLeave.earned_leave} days</span>
+    </li><li className="flex justify-between text-lg text-gray-700">
+    <span>Total leave:</span>
       <span>{leaveBalance.total_leave} days</span>
     </li>
   </ul>

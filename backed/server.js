@@ -7,6 +7,7 @@ import session from 'express-session';
 import leaveRoutes from './routes/leaveRoutes.js';  // Add the .js extension
 import cookieParser from 'cookie-parser';
 import uploadDocumentRouter from './routes/uploadDocumentRouter.js';
+import tastBoxRouters from './routes/tastBoxRouters.js';
 const app = express();
 const PORT = 5000;
 
@@ -26,13 +27,10 @@ app.use(
 );
 
 app.use('/api/auth', authRoutes); // Use the routes for authentication
-
 app.use('/api/adduser', addUserRoutes);
-
- app.use('/api/leave', leaveRoutes);
-
+ app.use('/api/leave', leaveRoutes); // Use the routes for leave
  app.use('/api/upload', uploadDocumentRouter); // Use the routes for uploading documents
-
+ app.use('/api/tastbox', tastBoxRouters); // Use the routes for tastbox
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

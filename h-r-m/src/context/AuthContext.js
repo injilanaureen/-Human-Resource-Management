@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
       role_permission: null,
       emp_email: null,
       emp_password: null,
-      total_leave: null
+     
     };
   });
 

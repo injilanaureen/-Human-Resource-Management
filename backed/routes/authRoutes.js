@@ -71,4 +71,63 @@ authRouter.get('/session', (req, res) => {
   }
 });
 
+
+
+authRouter.put('/updateUserPassword', (req, res) => {
+  const { empId, oldPassword, newPassword } = req.body;
+
+  // Input validation
+  if (!empId || !oldPassword || !newPassword) {
+      return res.status(400).json({
+          success: false,
+          message: 'All fields are required'
+      });
+  }
+
+  // First check if employee exists and verify old password
+  const checkQuery = 'SELECT * FROM master WHERE emp_id = ? AND emp_password = ?';
+  
+  db.query(checkQuery, [empId, oldPassword], (error, results) => {
+      if (error) {
+          console.error('Error checking employee:', error);
+          return res.status(500).json({
+              success: false,
+              message: 'Database error'
+          });
+      }
+
+      if (results.length === 0) {
+          return res.status(401).json({
+              success: false,
+              message: 'Invalid employee ID or current password'
+          });
+      }
+
+      // Update password
+      const updateQuery = 'UPDATE master SET emp_password = ? WHERE emp_id = ?';
+      
+      db.query(updateQuery, [newPassword, empId], (updateError, updateResults) => {
+          if (updateError) {
+              console.error('Error updating password:', updateError);
+              return res.status(500).json({
+                  success: false,
+                  message: 'Error updating password'
+              });
+          }
+
+          if (updateResults.affectedRows > 0) {
+              return res.status(200).json({
+                  success: true,
+                  message: 'Password updated successfully'
+              });
+          } else {
+              return res.status(500).json({
+                  success: false,
+                  message: 'Failed to update password'
+              });
+          }
+      });
+  });
+});;
+
 export default authRouter;

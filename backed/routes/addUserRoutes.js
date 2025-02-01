@@ -312,4 +312,69 @@ addUserRoutes.delete('/deleteUser/:empId', (req, res) => {
   });
 });
 
+// fetch Department by 
+addUserRoutes.get('/fetchDepartment/:id', (req, res) => {
+  const { id } = req.params;
+  console.log("Department ID received:", id);
+
+  const query = `SELECT * FROM department WHERE dep_id = ?`;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to fetch department",
+        details: err.message
+      });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Department not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Department fetched successfully",
+      department: result[0]
+    });
+  });
+});
+
+//fetch Designation by
+addUserRoutes.get('/fetchDesignation/:id', (req, res) => {
+  const { id } = req.params;
+  console.log("Designation ID received:", id);
+
+  const query = `SELECT * FROM designation WHERE designation_id = ?;`;
+
+  db.query(query, [id], (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to fetch designation",
+        details: err.message
+      });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Designation not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Designation fetched successfully",
+      designation: result[0]
+    });
+  });
+});
+
+
 export default addUserRoutes;
