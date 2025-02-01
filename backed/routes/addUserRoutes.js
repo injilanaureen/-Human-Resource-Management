@@ -251,7 +251,6 @@ LEFT JOIN
   });
   
 });
-<<<<<<< HEAD
 
 addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   const { emp_id } = req.params;
@@ -308,8 +307,7 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   });
   
 });
-=======
->>>>>>> 47ed275c89cbc5431d330f2b236ef8c16bcd09c3
+
 
 // Update user status
 addUserRoutes.put('/updateUserStatus', (req, res) => {
