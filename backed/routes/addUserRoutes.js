@@ -308,6 +308,10 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   
 });
 
+
+
+
+
 // Update user status
 addUserRoutes.put('/updateUserStatus', (req, res) => {
 
