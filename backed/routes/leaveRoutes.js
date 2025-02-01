@@ -7,7 +7,7 @@ const leaveRouter = express.Router();
 
 leaveRouter.get("/totalLeave/:emp_id", function (req, res) {
   const empId = req.params.emp_id; // Extracting the employee ID from the route parameter
-  const query = `SELECT total_leave FROM master WHERE emp_id = ?;`;
+  const query = `SELECT * FROM leave_policy WHERE emp_id = ?;`;
 
   db.query(query, [empId], (err, result) => {
     if (err) {
@@ -23,7 +23,14 @@ leaveRouter.get("/totalLeave/:emp_id", function (req, res) {
 
     // Extract and return only the total_leave value
     const totalLeave = result[0].total_leave;
-    return res.json({ total_leave: totalLeave });
+    const earned_leave	= result[0].earned_leave;
+    const casual_leave	= result[0].casual_leave;
+    const sick_leave	= result[0].sick_leave;
+    return res.json({ total_leave: totalLeave
+    ,earned_leave: earned_leave
+    ,casual_leave: casual_leave
+    ,sick_leave: sick_leave
+     });
   });
 });
 leaveRouter.post("/request", function (req, res) {
@@ -49,8 +56,6 @@ leaveRouter.post("/request", function (req, res) {
     }
   );
 });
-
-
 leaveRouter.get("/leaveRequests/:emp_id", function (req, res) {
     const empId = req.params.emp_id; // Get emp_id from the request parameters
     const query = "SELECT * FROM leave_application WHERE emp_id = ?"; // Use parameterized query
