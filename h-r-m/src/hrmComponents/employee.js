@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, EyeOff,XCircle, Plus } from 'lucide-react';
+import { ArrowLeft, EyeOff,XCircle, Plus,Minus } from 'lucide-react';
 import { Link } from "react-router-dom";
+import { CSVLink } from 'react-csv';
 import axios from 'axios';
 import { Search } from 'lucide-react';
 import { Filter } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Eye } from 'lucide-react';
 import { FolderInput } from 'lucide-react';
 import { EllipsisVertical } from 'lucide-react';
 import { motion } from "framer-motion";
+import UpdateEmploymentStatusModal from "./UpdateEmploymentStatusModal";
 
 
 
@@ -41,6 +43,11 @@ function Employee() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [employmentStatus, setEmployementStatus] = useState(false);
+
+
+ 
+
   // Separate state for settings (different from filters)
   const [settings, setSettings] = useState({
     groupBy: '',  // For grouping employees (designation, department, etc.)
@@ -99,6 +106,11 @@ function Employee() {
 
    
   };
+
+  const handleFilter=(e)=>{
+    const {name, value}= e.target;
+    setFilters({...filters,[name]:value})
+  }
 
   const fetchRoles = async () => {
     try {
@@ -159,10 +171,10 @@ function Employee() {
   const fetchAllEmployees = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/adduser/getAllEmployees');
-      console.log("Response data:", response.data); // Log the response
+      console.log("Response data:", response.data.data); // Log the response
       if (response.data.success) {
         setAllEmployeeData(response?.data?.data);
-        setFilteredData(response?.data?.data);
+        setFilteredEmployees(response?.data?.data);
       } else {
         console.error('Failed to fetch employees:', response.data.error);
       }
@@ -174,11 +186,11 @@ function Employee() {
   const handleSearch = (e)=>{
     const value = e.target.value.toLowerCase();
     setSearchTerm(value);
-    const filteredData = allEmployeeData.filter((employee) => 
+    const searchResults  = allEmployeeData.filter((employee) => 
       employee.emp_full_name.toLowerCase().includes(value)
     );
     
-    setFilteredEmployees(filteredData);
+    setFilteredEmployees(searchResults );
   }
   const resetSearch= ()=>{
     setSearchTerm('');
@@ -193,7 +205,7 @@ function Employee() {
 
   useEffect(()=>{
     fetchAllEmployees();
-  },[])
+  },[]);
 
   useEffect(() => {
     if (selectedDepartment) {
@@ -349,11 +361,11 @@ function Employee() {
     { label: 'Office Mobile Number', key: 'emp_phone_no' },
     { label: 'Current Role', key: 'role_name' }
   ];
-
-
  
   return (
     <div className="max-h-screen">
+
+      
       <Link to="/">
         <div className="flex items-center gap-1">
           <ArrowLeft />
@@ -394,81 +406,128 @@ function Employee() {
                   <XCircle/>
                 </button>
               )}
-             
-           </div>
+    
 
+           </div>
+           {(Object.values(filters).some(value => value !== '')) && (
+  <button
+    onClick={resetFilters}
+    className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+  >
+    Reset
+  </button>
+)}
  
            <div className='flex relative'>
+     
         <button
           className=" border-2 border-gray-300 p-2 flex"
-          onClick={() => setShowDialog(true)}
+          onClick={() => setFilterSheet(true)}
         >
-          <Filter className='size-4' />
-           <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-5 text-xs text-white'>1</div>
+          <Filter  className='size-4' />
+           <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-5 text-xs text-white'>
+            {Object.values(filters).filter(value=>value !== '').length}</div>
         </button>
         
         <button
           className=" border-2 border-l-0 border-gray-300 p-2 flex"
-          onClick={() => setShowDialog(true)}
+          onClick={() => setIsSidebarOpen(true)}
         >
           <Settings className='size-4' /> 
-          <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-14 text-xs text-white'>1</div>
+          <div className='rounded-full bg-indigo-400 absolute size-4 top-1 left-14 text-xs text-white'> {Object.values(settings).filter(value=>value !== '').length}</div>
         </button><button
           className=" border-2 border-l-0 border-gray-300 p-2 flex"
           onClick={() => setShowDialog(true)}
         >
           <Eye className='size-4' />
-        </button><button
-          className=" border-2 border-l-0 border-gray-300 p-2 flex"
-          onClick={() => setShowDialog(true)}
-        >
-          <FolderInput className='size-4' /> 
         </button>
-
+        <button
+          className=" border-2 border-l-0 border-gray-300 p-2 flex">
+        <CSVLink
+          data={filteredEmployees}  // <-- Using filteredEmployees here
+          headers={headers}
+          filename={"employees.csv"}
+        >
+          <FolderInput className='size-4' />
+        </CSVLink>
+        </button>
            </div>
       </div>
 
 
 
 {/** employee table */}
-<div className="overflow-x-auto border border-gray-300 mt-10 rounded-lg">
-  {/* Table Header */}
-  <div className="grid grid-cols-[50px_150px_80px_150px_150px_250px_300px_200px_150px_150px] bg-primary-color text-btn-text-color font-semibold">
-    <div className="p-2">
-      <input type="checkbox" className="accent-secondary-color" />
-    </div>
-    <div className="p-2 text-sm">Name</div>
-    <div className="p-2 text-sm">ID</div>
-    <div className="p-2 text-sm">Designation</div>
-    <div className="p-2 text-sm">Department</div>
-    <div className="p-2 text-sm">Email ID</div>
-    <div className="p-2 text-sm">Personal Email</div>
-    <div className="p-2 text-sm">Office Mobile Number</div>
-    <div className="p-2 text-sm">Current Role</div>
-  </div>
+<div>
+  
+  {/* Table Section */}
+  <div className="overflow-x-auto border border-gray-300 mt-10 rounded-lg">
+    <table className="min-w-full table-auto text-sm">
+      <thead className="bg-primary-color text-btn-text-color font-semibold">
+        <tr className="bg-indigo-400">
+          <th className="py-2 px-3 text-left">
+            <input type="checkbox" className="accent-secondary-color" />
+          </th>
+          <th className="py-2 px-3 text-white text-left">Name</th>
+          <th className="py-2 px-3 text-white text-left">ID</th>
+          <th className="py-2 px-3 text-white text-left">Designation</th>
+          <th className="py-2 px-3 text-white text-left">Department</th>
+          <th className="py-2 px-3 text-white text-left">Official Email ID</th>
+          <th className="py-2 px-3 text-white text-left">Team Leader</th>
+          <th className="py-2 px-3 text-white text-left">Manager</th>
+          <th className="py-2 px-3 text-white text-left">Office Mobile Number</th>
+          <th className="py-2 px-3 text-white text-left">Current Role</th>
+          <th className="py-2 px-3 text-white text-left">Joining Date</th>
+          <th className="py-2 px-3 text-white text-left">Status</th>
+          <th className="py-2 px-3 text-white text-left">Employement Status</th>
+          <th className="py-2 px-3 text-white text-left">Action</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-300">
+        {filteredEmployees.map((row) => (
+          <tr
+            key={row.id}
+            className="bg-white hover:bg-gray-100"
+          >
+            <td className="py-2 px-3">
+              <input type="checkbox" className="accent-secondary-color" />
+            </td>
+            <td className="py-2 px-3">
+              <Link to={`/employeeOverview/${row.emp_id}`} className="flex items-center gap-4 text-blue-600 font-semibold underline">
+                {row.emp_full_name}
+                <EllipsisVertical className="text-gray-400 size-4" />
+              </Link>
+            </td>
+            <td className="py-2 px-3">{row.emp_id || 'Not Generated' }</td>
+            <td className="py-2 px-3">{row.emp_designation}</td>
+            <td className="py-2 px-3">{row.emp_department}</td>
+            <td className="py-2 px-3">{row.emp_email || 'Not Generated yet' }</td>
+            <td className="py-2 px-3">{row.team_leader_name || 'Not assigned'}</td>
+            <td className="py-2 px-3">{row.manager_name || 'Not assigned'}</td>
+            <td className="py-2 px-3">{row.emp_phone_no}</td>
+            <td className="py-2 px-3">{row.role_name}</td>
+            <td className="py-2 px-3">{new Date(row.emp_join_date).toLocaleDateString('en-GB')}</td>
+            <td className={`py-2 px-3 ${row.emp_status === 'Active' ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+            {row.emp_status}
+        </td>
+      <td className={`py-2 px-3 ${row.emp_empstatus === 'Permanent' ? 'bg-green-600' : 'bg-yellow-500'} text-white`}>
+                {(() => {
+                  const joiningDate = new Date(row.emp_join_date);
+                  const currentDate = new Date();
+                  const diffInMonths =
+                    (currentDate - joiningDate) / (1000 * 3600 * 24 * 30);
 
-  {/* Table Rows */}
-  <div className="divide-y divide-gray-300">
-  {/* {renderTableData()} */}
-    {filteredEmployees.map((row) => (
-      <div
-        key={row.id}
-        className="grid grid-cols-[50px_150px_80px_150px_150px_250px_300px_200px_150px_150px] bg-white hover:bg-gray-100"
-      >
-        <div className="p-2">
-          <input type="checkbox" className="accent-secondary-color" />
-        </div>
-       <Link to={`/employeeOverview/${row.emp_id}`}> <div className="p-2 flex items-center gap-4 text-blue-600 font-semibold underline">{row.emp_full_name} <EllipsisVertical  className="text-gray-400 size-4"/></div></Link>
-        
-       <div className="p-2 text-md">{row.emp_id}</div>
-        <div className="p-2 text-md">{row.emp_designation}</div>
-        <div className="p-2 text-md">{row.emp_department}</div>
-        <div className="p-2 text-md">{row.emp_email}</div>
-        <div className="p-2 text-md">{row.emp_personal_email}</div>
-        <div className="p-2 text-md">{row.emp_phone_no}</div>
-        <div className="p-2 text-md">{row.role_name}</div> {/* Updated role */}
-      </div>
-    ))}
+                  if (diffInMonths <= 3) {
+                    return row.emp_empstatus ;
+                  } else {
+                    return "Pending Approval for Permanent Status";
+                  }
+                })()}
+              </td>
+            <td className="py-2 px-3"><button className='p-2 bg-indigo-500 text-white' onClick={()=>openEmploymentModal(row)}>Edit</button></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -960,7 +1019,7 @@ function Employee() {
   </div>
 )}
 
-    </div>
+</div>
   );
 };
 
