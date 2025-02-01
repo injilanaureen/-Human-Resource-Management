@@ -10,7 +10,9 @@ import { Eye } from 'lucide-react';
 import { FolderInput } from 'lucide-react';
 import { EllipsisVertical } from 'lucide-react';
 import { motion } from "framer-motion";
+import EmployeePersonalDetailsForm from "./employementPersonalDetails";
 import UpdateEmploymentStatusModal from "./UpdateEmploymentStatusModal";
+
 
 
 
@@ -37,9 +39,11 @@ function Employee() {
   const [designations, setDesignations] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [showDialog1, setShowDialog1] = useState(false);
   const [allEmployeeData,setAllEmployeeData] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedEmployee1, setSelectedEmployee1] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -73,9 +77,6 @@ function Employee() {
 
   });
 
-
-
-
   const applySettings = () => {
     console.log('Settings applied:', settings);
     isSidebarOpen(false); // Close sidebar after applying settings
@@ -92,7 +93,6 @@ function Employee() {
     console.log('Settings reset');
   };
   
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -215,6 +215,10 @@ function Employee() {
 
   const openEmploymentModal = (employee) => {
     setSelectedEmployee(employee);
+    setEmployementStatus(true);
+  };
+  const openUpdateFormModal= (employee) => {
+    setSelectedEmployee1(employee);
     setEmployementStatus(true);
   };
 
@@ -480,6 +484,7 @@ function Employee() {
           <th className="py-2 px-3 text-white text-left">Status</th>
           <th className="py-2 px-3 text-white text-left">Employement Status</th>
           <th className="py-2 px-3 text-white text-left">Action</th>
+          <th className="py-2 px-3 text-white text-left">Update</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-gray-300">
@@ -524,6 +529,7 @@ function Employee() {
                 })()}
               </td>
             <td className="py-2 px-3"><button className='p-2 bg-indigo-500 text-white' onClick={()=>openEmploymentModal(row)}>Edit</button></td>
+            <td className="py-2 px-3"><button className='p-2 bg-indigo-500 text-white' onClick={()=>openUpdateFormModal(row)}>Update</button></td>
           </tr>
         ))}
       </tbody>
@@ -765,6 +771,14 @@ function Employee() {
             </form>
           </div>
         </div>
+      )}
+      {showDialog1 && (
+       
+       <EmployeePersonalDetailsForm
+       setSelectedDepartment={setSelectedDepartment}
+       setShowDialog1={setShowDialog1}    
+       selectedEmployee1={selectedEmployee1}
+       />
       )}
 
       {filterSheet && (
