@@ -254,33 +254,81 @@ LEFT JOIN
 
 addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   const { emp_id } = req.params;
-  const query = `
-    SELECT 
-      e.emp_id,
-      e.emp_full_name,
-      e.emp_personal_email,
-      e.emp_phone_no,
-      e.emp_addhar_no,
-      e.emp_pan_card_no,
-      d.dep_name AS emp_department,
-      des.designation_name AS emp_designation,
-      e.emp_join_date,
-      e.emp_status,
-      r.role AS role_name,
-      e.emp_email,
-      e.emp_password,
-      r.permission
-    FROM 
-      master e
-    LEFT JOIN 
-      department d ON e.emp_department = d.dep_id
-    LEFT JOIN 
-      designation des ON e.emp_designation = des.designation_id
-    LEFT JOIN 
-      role_and_permission r ON e.role_id = r.role_id
-      where e.emp_id= ?;
-      
-  `;
+  
+   const query = `
+  SELECT 
+    e.id,
+    e.emp_id,
+    e.emp_full_name,
+    e.emp_department AS emp_departmentid,
+    e.emp_designation AS emp_designationid,
+    e.emp_confirmation_date,
+    e.emp_empstatus,
+    e.emp_offered_ctc,
+    e.emp_personal_email,
+    e.emp_phone_no,
+    e.emp_addhar_no,
+    e.emp_pan_card_no,
+    d.dep_name AS emp_department,
+    des.designation_name AS emp_designation,
+    e.emp_join_date,
+    e.emp_status,
+    r.role AS role_name,
+    e.emp_email,
+    e.emp_password,
+    r.permission,
+    tl.emp_full_name AS team_leader_name,
+    m.emp_full_name AS manager_name,
+
+    -- Bank Details
+    bd.account_holder_name,
+    bd.bank_name,
+    bd.branch_name,
+    bd.account_no,
+    bd.IFSC_code,
+
+    -- Address and Emergency Details
+    ed.permanent_address,
+    ed.permanent_city,
+    ed.permanent_state,
+    ed.permanent_zip_code,
+    ed.current_address,
+    ed.current_city,
+    ed.current_state,
+    ed.current_zip_code,
+    ed.alternate_mob_no,
+    ed.emergency_person_name,
+    ed.emergency_relationship,
+    ed.emergency_mob_no,
+    ed.emergency_address,
+    ed.marital_status,
+
+    -- Educational Background
+    eb.degree,
+    eb.institution,
+    eb.year_of_passing
+  FROM 
+    master e
+  LEFT JOIN 
+    department d ON e.emp_department = d.dep_id
+  LEFT JOIN 
+    designation des ON e.emp_designation = des.designation_id
+  LEFT JOIN 
+    role_and_permission r ON e.role_id = r.role_id
+  LEFT JOIN 
+    master tl ON e.team_leader_id = tl.id
+  LEFT JOIN 
+    master m ON e.manager_id = m.id
+  LEFT JOIN 
+    bank_details bd ON e.emp_id = bd.emp_id
+  LEFT JOIN 
+    personal_information ed ON e.emp_id = ed.emp_id
+  LEFT JOIN 
+    educational_background eb ON e.emp_id = eb.emp_id
+  WHERE 
+    e.emp_id = ?;
+`;
+
   
   db.query(query,[emp_id] ,(err, result) => {
     if (err) {
@@ -307,9 +355,6 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   });
   
 });
-
-
-
 
 
 // Update user status
