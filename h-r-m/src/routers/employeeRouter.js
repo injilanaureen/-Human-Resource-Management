@@ -17,7 +17,7 @@ import Logit from '../employeeComponents/logit';
 import Yatya from '../employeeComponents/yatya';
 import P2pComponent from '../employeeComponents/p2pComponent';
 import Evolve from '../employeeComponents/evolve';
-
+import EmployeePersonalDetails from '../employeeComponents/empPersonalDetails';
 import EPFOWebite from '../employeeComponents/epfoWebite';
 import Policies from '../employeeComponents/policies';
 import BlueBox from '../employeeComponents/blueBox';
@@ -47,6 +47,7 @@ const EmployeeRouters = () => {
           <Route path="epfoWebite" element={<EPFOWebite />} />
           <Route path="policies" element={<Policies />} />
           <Route path="bluebox" element={<BlueBox />} />
+          <Route path="employeepersonaldetails/:empId" element={<EmployeePersonalDetails />} />
         </Route>
       </Routes>
    
