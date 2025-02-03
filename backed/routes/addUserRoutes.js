@@ -354,6 +354,23 @@ LEFT JOIN
   
 });
 
+addUserRoutes.get('/getSingleEmployeeeducation/:emp_id', (req, res) => {
+  const { emp_id } = req.params;
+
+  db.query(
+    `SELECT * FROM educational_background WHERE emp_id = ?`, 
+    [emp_id], 
+    (err, rows) => { 
+      if (err) {
+        res.status(500).json({ success: false, error: err.message });
+      } else {
+        res.json({ success: true, data: rows });
+      }
+    }
+  );
+  
+});
+
 addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   const { emp_id } = req.params;
   
