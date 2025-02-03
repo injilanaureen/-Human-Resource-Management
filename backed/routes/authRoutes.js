@@ -99,7 +99,7 @@ authRouter.put('/updateUserPassword', (req, res) => {
       if (results.length === 0) {
           return res.status(401).json({
               success: false,
-              message: 'Invalid employee ID or current password'
+              message: 'Invalid current password'
           });
       }
 
