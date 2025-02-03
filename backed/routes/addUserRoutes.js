@@ -362,7 +362,6 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
     e.id,
     e.emp_id,
     e.emp_full_name,
-   
     e.emp_department AS emp_departmentid,
     e.emp_designation AS emp_designationid,
     e.emp_confirmation_date,
@@ -407,6 +406,7 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
     ed.emergency_mob_no,
     ed.emergency_address,
     ed.marital_status,
+    ed.blood_group,
 
     -- Educational Background
     eb.degree,

@@ -3,8 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios"; 
 
 function EmployeeOverview() {
-const managingDirector = "Subir Majumdar"
-  const manager = "Dr Bandana Kedia"; 
   const { id } = useParams(); 
   console.log(id);
   const [employee, setEmployee] = useState(null); 
@@ -35,7 +33,7 @@ const managingDirector = "Subir Majumdar"
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Overview</h2>
         <div className="space-x-2">
-         <Link to="/personaldetails"><button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm">VIEW PERSONAL DETAILS</button></Link>
+         <Link to={`/personaldetails/${employee.emp_id}`}><button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm">VIEW PERSONAL DETAILS</button></Link>
           <button className="bg-purple-500 text-white px-3 py-1.5 rounded text-sm">DOWNLOAD</button>
         </div>
       </div>
@@ -48,8 +46,8 @@ const managingDirector = "Subir Majumdar"
             <p className="text-sm">{employee.emp_id || "PPIN346"}</p>
           </div>
           <div>
-            <p className="text-gray-500 text-xs">Email ID</p>
-            <p className="text-sm">{employee.emp_personal_email || "user@nikatby.com"}</p>
+            <p className="text-gray-500 text-xs">Official Email ID</p>
+            <p className="text-sm">{employee.emp_email || "user@nikatby.com"}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Department</p>
@@ -86,11 +84,11 @@ const managingDirector = "Subir Majumdar"
           </div>
           <div>
             <p className="text-gray-500 text-xs">Team Leader</p>
-            <p className="text-sm">{employee.leader || "Adnan Siddiqui"}</p>
+            <p className="text-sm">{employee.team_leader_name || "Not Assigned"}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Manager</p>
-            <p className="text-sm">{employee.manager || "Nitesh Singh"}</p>
+            <p className="text-sm">{employee.manager_name || "Not Assigned"}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Assigned Permission</p>
@@ -145,16 +143,18 @@ const managingDirector = "Subir Majumdar"
           <div className="relative">
           <div className="flex flex-col items-center">
   <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300">
-    {
+  {
       // Dynamically extract initials from the full name string
-      managingDirector
-        .split(' ')  // Split the name by spaces
-        .map((namePart) => namePart.charAt(0).toUpperCase())  // Get first letter of each part
-        .join('')  // Join the initials together
+      employee.manager_name 
+      ? employee.manager_name
+          .split(' ')  // Split the name by spaces
+          .map((namePart) => namePart.charAt(0).toUpperCase())  // Get first letter of each part
+          .join('')  // Join the initials together
+      : ''  // Default to empty string if no team_leader_name exists
     }
   </div>
   <div className="text-center">
-    <p className="text-xs font-medium">{managingDirector}</p>  {/* Full name dynamically rendered */}
+    <p className="text-xs font-medium">{ employee.manager_name}</p>  {/* Full name dynamically rendered */}
     <p className="text-xs text-gray-500">Director- People & Culture</p>
   </div>
   <div className="h-8 w-px bg-gray-300 my-2"></div>
@@ -164,14 +164,16 @@ const managingDirector = "Subir Majumdar"
   <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300">
     {
       // Dynamically extract initials from the full name string
-      manager
-        .split(' ')  // Split the name by spaces
-        .map((namePart) => namePart.charAt(0).toUpperCase())  // Get first letter of each part
-        .join('')  // Join the initials together
+      employee.team_leader_name 
+      ? employee.team_leader_name
+          .split(' ')  // Split the name by spaces
+          .map((namePart) => namePart.charAt(0).toUpperCase())  // Get first letter of each part
+          .join('')  // Join the initials together
+      : ''  // Default to empty string if no team_leader_name exists
     }
   </div>
   <div className="text-center">
-    <p className="text-xs font-medium">{manager}</p>  {/* Full name dynamically rendered */}
+    <p className="text-xs font-medium">{employee.team_leader_name}</p>  {/* Full name dynamically rendered */}
     <p className="text-xs text-gray-500">Director- People & Culture</p>
   </div>
   <div className="h-8 w-px bg-gray-300 my-2"></div>

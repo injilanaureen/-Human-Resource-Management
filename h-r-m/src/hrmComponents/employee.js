@@ -13,14 +13,10 @@ import { motion } from "framer-motion";
 import EmployeePersonalDetailsForm from "./employementPersonalDetails";
 import UpdateEmploymentStatusModal from "./UpdateEmploymentStatusModal";
 
-
-
-
 function Employee() {
   const [formData, setFormData] = useState({
     empFullName: '',
     empPersonalEmail: '',
-
     empPhoneNo: '',
     empAadhaarNo: '',
     empPanCardNo: '',
@@ -224,8 +220,6 @@ function Employee() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-
     try {
       const response = await axios.post(
         "http://localhost:5000/api/adduser/submitUser",
