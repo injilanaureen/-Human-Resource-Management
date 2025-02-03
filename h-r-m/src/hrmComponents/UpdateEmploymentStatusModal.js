@@ -77,9 +77,8 @@ e.preventDefault();
     }
   };
   useEffect(() => {
-  
-    fetchDesignations(selectedEmployee.emp_departmentid)
     fetchAllEmployees();
+    fetchDesignations();
   }, []);
 
   return (

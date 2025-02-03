@@ -219,15 +219,12 @@ function Employee() {
   };
   const openUpdateFormModal= (employee) => {
     setSelectedEmployee1(employee);
-    setEmployementStatus(true);
+    setShowDialog1(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-  
-    
-
 
     try {
       const response = await axios.post(
@@ -368,8 +365,6 @@ function Employee() {
  
   return (
     <div className="max-h-screen">
-
-      
       <Link to="/">
         <div className="flex items-center gap-1">
           <ArrowLeft />
@@ -458,11 +453,8 @@ function Employee() {
            </div>
       </div>
 
-
-
 {/** employee table */}
 <div>
-  
   {/* Table Section */}
   <div className="overflow-x-auto border border-gray-300 mt-10 rounded-lg">
     <table className="min-w-full table-auto text-sm">
