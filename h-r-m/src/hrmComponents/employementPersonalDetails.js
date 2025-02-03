@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
   const [step, setStep] = useState(1);
@@ -43,10 +44,56 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
    
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try
+    {
+      console.log(selectedEmployee1)
+      const dataToSubmit = { ...formData, emp_id: selectedEmployee1.emp_id };
+
+      const response = await axios.post("http://localhost:5000/api/adduser/submitPersonalInformation",dataToSubmit)
+      if(response.data.success){
+        console.log("User profile data added successfully:", response.data);
+        setShowDialog1(false);
+        setFormData({
+          permanent_address: '',
+          permanent_city: '',
+          permanent_state: '',
+          permanent_zip_code: '',
+          current_address: '',
+          current_city: '',
+          current_state: '',
+          current_zip_code: '',
+          alternate_mob_no: '',
+          emergency_person_name: '',
+          emergency_relationship: '',
+          emergency_mob_no: '',
+          emergency_address: '',
+          marital_status: '',
+          account_holder_name: '',
+          bank_name: '',
+          branch_name: '',
+          account_no: '',
+          IFSC_code: '',
+        education: [
+          { degree: 'High School', institution: '', year_of_passing: '' },
+          { degree: 'Intermediate', institution: '', year_of_passing: '' },
+          { degree: 'Graduation', institution: '', year_of_passing: '' },
+          { degree: 'Post Graduation', institution: '', year_of_passing: '' }
+        ]
+        })
+
+      }
+      else{
+        console.error("Failed to add user profile data:", response.data.error);
+      }
+    }
+    
+    catch(error){
+      console.error('Failed to submit form:', error);
+      return;
+    }
     console.log('Form submitted:', formData);
-    alert('Form submitted',formData)
     setShowDialog1(false)
   };
 
@@ -263,10 +310,17 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
             </select>
           </div>
         </div>
-      
+
+      <div className="flex justify-end gap-2">
         <button onClick={() => setStep(2)} className="col-span-2 mt-4 p-2 bg-blue-500 text-white rounded-md">
           Next
         </button>
+
+        <button onClick={() => setShowDialog1(false)} className="col-span-2  mt-4 p-2 bg-red-500 text-white rounded-md">
+          Cancel
+        </button>
+      </div>
+
       </div>
     )}
 
@@ -332,12 +386,18 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
             placeholder="Enter IFSC Code"
           />
         </div>
-        <button onClick={() => setStep(1)} className="mr-4 p-2 bg-gray-500 text-white rounded-md">
-          Previous
-        </button>
-        <button onClick={() => setStep(3)} className="p-2 bg-blue-500 text-white rounded-md">
-          Next
-        </button>
+        
+      <div className="flex justify-end gap-2">
+          <button onClick={() => setStep(1)} className="col-span-2 mt-4 p-2 bg-blue-500 text-white rounded-md">
+            Previous
+          </button>
+          <button onClick={() => setStep(3)} className="col-span-2 mt-4 p-2 bg-blue-500 text-white rounded-md">
+            Next
+          </button>
+          <button onClick={() => setShowDialog1(false)} className="col-span-2  mt-4 p-2 bg-red-500 text-white rounded-md">
+            Cancel
+          </button>
+      </div>
       </div>
     )}
 
@@ -351,7 +411,7 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
               name="institution"
               value={edu.institution}
               onChange={(e) => handleEducationChange(index, e)}
-              required
+             
               className="w-full p-2 border rounded-md"
               placeholder="Enter Institution Name"
             />
@@ -361,7 +421,7 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
               name="year_of_passing"
               value={edu.year_of_passing}
               onChange={(e) => handleEducationChange(index, e)}
-              required
+         
               className="w-full p-2 border rounded-md"
               placeholder="Enter Year of Passing"
             />

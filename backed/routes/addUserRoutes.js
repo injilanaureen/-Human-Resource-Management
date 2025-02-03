@@ -190,8 +190,110 @@ addUserRoutes.post('/submitUser', (req, res) => {
     });
   });
 });
-//fetch employee
 
+//submit personal information
+addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
+  const { 
+    emp_id,
+    permanent_address,
+    permanent_city,
+    permanent_state,
+    permanent_zip_code,
+    current_address,
+    current_city,
+    current_state,
+    current_zip_code,
+    alternate_mob_no,
+    emergency_person_name,
+    emergency_relationship,
+    emergency_mob_no,
+    emergency_address,
+    marital_status,
+    account_holder_name,
+    bank_name,
+    branch_name,
+    account_no,
+    IFSC_code,
+    education
+  } = req.body;
+
+  // ✅ Insert into `bank_details`
+  const bankQuery = `INSERT INTO bank_details (account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id) VALUES (?, ?, ?, ?, ?, ?)`;
+  db.query(bankQuery, [account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id], (bankError, bankResults) => {
+    if (bankError) {
+      console.error("Error inserting into bank_details:", bankError);
+      return res.status(500).json({
+        success: false,
+        error: "Database operation failed for bank details",
+        details: bankError.message
+      });
+    }
+
+    // ✅ Insert into `personal_information`
+    const personalQuery = `INSERT INTO personal_information (permanent_address, permanent_city, permanent_state, permanent_zip_code, current_address, current_city, current_state,
+        current_zip_code, alternate_mob_no, emergency_person_name, emergency_relationship, emergency_mob_no, emergency_address, marital_status, emp_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    db.query(personalQuery, [
+      permanent_address, permanent_city, permanent_state, permanent_zip_code,
+      current_address, current_city, current_state, current_zip_code,
+      alternate_mob_no, emergency_person_name, emergency_relationship,
+      emergency_mob_no, emergency_address, marital_status, emp_id
+    ], (personalError, personalResults) => {
+      if (personalError) {
+        console.error("Error inserting into personal_information:", personalError);
+        return res.status(500).json({
+          success: false,
+          error: "Database operation failed for personal information",
+          details: personalError.message
+        });
+      }
+
+      // ✅ Insert into `educational_background`
+      if (education && Array.isArray(education)) {
+        let completed = 0;
+        let failed = false;
+
+        education.forEach((edu, index) => {
+          const educationQuery = `INSERT INTO educational_background (degree, institution, year_of_passing, emp_id) VALUES (?, ?, ?, ?)`;
+          db.query(educationQuery, [edu.degree, edu.institution, edu.year_of_passing, emp_id], (eduError, eduResults) => {
+            if (eduError) {
+              console.error("Error inserting into educational_background:", eduError);
+              failed = true;
+            } else {
+              completed++;
+            }
+
+            // If all education records are processed, check if there was any failure
+            if (index === education.length - 1) {
+              if (failed) {
+                return res.status(500).json({
+                  success: false,
+                  error: "Database operation failed for education records",
+                });
+              }
+
+              // ✅ Final Response after all operations are done
+              return res.json({
+                success: true,
+                message: "Personal Information and Education details submitted successfully"
+              });
+            }
+          });
+        });
+      } else {
+        // If education data is empty or not provided
+        return res.json({
+          success: true,
+          message: "Personal Information submitted successfully (no education data)"
+        });
+      }
+    });
+  });
+});
+
+
+
+//fetch employee
 addUserRoutes.get('/getAllEmployees', (req, res) => {
   const query = `
 SELECT 
@@ -260,7 +362,6 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
     e.id,
     e.emp_id,
     e.emp_full_name,
-   
     e.emp_department AS emp_departmentid,
     e.emp_designation AS emp_designationid,
     e.emp_confirmation_date,
@@ -305,6 +406,7 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
     ed.emergency_mob_no,
     ed.emergency_address,
     ed.marital_status,
+    ed.blood_group,
 
     -- Educational Background
     eb.degree,
@@ -358,6 +460,7 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   });
   
 });
+
 
 
 // Update user status
@@ -492,6 +595,8 @@ addUserRoutes.put('/updateEmploymentStatus', (req, res) => {
     return res.json({ success: true, message: "Employment details updated successfully" });
   });
 });
+
+
 // Delete user
 addUserRoutes.delete('/deleteUser/:empId', (req, res) => {
   const { empId } = req.params;
