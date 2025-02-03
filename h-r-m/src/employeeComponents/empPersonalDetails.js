@@ -5,7 +5,21 @@ import axios from "axios";
 
 
 function EmployeePersonalDetails() {
-    const { empId } = useParams(); 
+  const { empId } = useParams(); 
+
+  const [employee, setEmployee] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+        // Basic validation
+        if (oldPassword.trim() === "") {
+            toast.error("Old password is required!");
+            return;
+        }
+        if (newPassword.trim() === "") {
+            toast.error("New password is required!");
    
       const [employee, setEmployee] = useState(null); 
       console.log(employee);
