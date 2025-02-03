@@ -11,7 +11,7 @@ const Layout = () => {
   const notificationsRef = useRef(null); // Ref to detect clicks outside the notifications dropdown
   const [open, setOpen] = useState(false); // State for dropdown
   const dropdownRef = useRef(null); // Ref for detecting outside clicks
-const {user} = useAuth();
+  const { user } = useAuth();
   // Function to handle clicks outside the dropdown
   useEffect(() => {
     function handleClickOutside(event) {
@@ -22,7 +22,7 @@ const {user} = useAuth();
 
     // Add event listener
     document.addEventListener("mousedown", handleClickOutside);
-    
+
     return () => {
       // Remove event listener on unmount
       document.removeEventListener("mousedown", handleClickOutside);
@@ -215,33 +215,37 @@ const {user} = useAuth();
                   </div>
                 )}
               </div>
-              
+
 
               <div className="relative" ref={dropdownRef}>
-      <div
-        className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300 cursor-pointer"
-        onClick={() => setOpen(!open)}
-      >
-        {
-          user.emp_full_name.split(" ")
-          .map((namePart) => namePart.charAt(0).toUpperCase())
-          .join("")}
-      </div>
+                <div
+                  className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300 cursor-pointer"
+                  onClick={() => setOpen(!open)}
+                >
+                  {
+                    user.emp_full_name.split(" ")
+                      .map((namePart) => namePart.charAt(0).toUpperCase())
+                      .join("")}
+                </div>
 
-      {open && (
-        <div className="absolute top-12 right-0 w-auto h-auto bg-white border rounded-lg shadow-md p-2">
-        <p className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer rounded">
-  <Link to="employee" className="w-full">
-    Profile
-  </Link>
-</p>
+                {open && (
+                  <div className="absolute top-12 right-0 w-auto h-auto bg-white border rounded-lg shadow-md p-2">
+                    <p className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer rounded">
+                      <Link to="/employee" className="w-full">
+                        Profile
+                      </Link>
+                    </p>
 
-          <p className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colorstext-sm cursor-pointer hover:bg-gray-100 p-1 rounded">Change Password</p>
-          <p className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colorstext-sm cursor-pointer hover:bg-gray-100 p-1 rounded">Logout</p>
-        </div>
-      )}
-    </div>
-  
+                    <p className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer rounded">
+                      <Link to="/changepassword" className="w-full">
+                        Change Password
+                      </Link>
+                    </p>
+                    <p className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colorstext-sm cursor-pointer hover:bg-gray-100 p-1 rounded">Logout</p>
+                  </div>
+                )}
+              </div>
+
 
             </div>
           </div>
