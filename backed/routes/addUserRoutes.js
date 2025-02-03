@@ -260,6 +260,7 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
     e.id,
     e.emp_id,
     e.emp_full_name,
+   
     e.emp_department AS emp_departmentid,
     e.emp_designation AS emp_designationid,
     e.emp_confirmation_date,
@@ -271,6 +272,8 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
     e.emp_pan_card_no,
     d.dep_name AS emp_department,
     des.designation_name AS emp_designation,
+    e.emp_gender,
+    e.emp_dob,
     e.emp_join_date,
     e.emp_status,
     r.role AS role_name,
@@ -326,7 +329,7 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   LEFT JOIN 
     educational_background eb ON e.emp_id = eb.emp_id
   WHERE 
-    e.emp_id = ?;
+    e.emp_id = ? ; 
 `;
 
   
