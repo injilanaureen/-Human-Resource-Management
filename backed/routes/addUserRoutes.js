@@ -699,4 +699,207 @@ addUserRoutes.get('/fetchDesignation/:id', (req, res) => {
 });
 
 
+// Update route to handle emergency contact update
+addUserRoutes.put('/updateEmergencyContact/:id', (req, res) => {
+  const { id } = req.params; // Extract employee ID from URL
+  const { emergency_person_name, emergency_relationship, emergency_address, emergency_mob_no } = req.body;
+
+  // SQL query to update the emergency contact details
+  const updateQuery = `
+    UPDATE personal_information 
+    SET 
+      emergency_person_name = ?, 
+      emergency_relationship = ?, 
+      emergency_address = ?, 
+      emergency_mob_no = ? 
+    WHERE emp_id = ?`;
+
+  // Execute the query
+  db.execute(updateQuery, [
+    emergency_person_name, 
+    emergency_relationship, 
+    emergency_address, 
+    emergency_mob_no, 
+    id // The employee ID to update
+  ], (err, results) => {
+    if (err) {
+      console.error('Error updating emergency contact:', err);
+      return res.status(500).send({ success: false, error: err.message });
+    }
+
+    // Check if the employee was found and updated
+    if (results.affectedRows === 0) {
+      return res.status(404).send({ success: false, error: "Employee not found" });
+    }
+
+    // Successfully updated
+    res.send({ success: true, message: "Emergency contact updated successfully" });
+  });
+});
+
+// update updatePersonal-Information
+
+addUserRoutes.put('/updatePersonal-Information/:id', (req, res) => {
+  const { id } = req.params; // Extract employee ID from URLconst { id } = req.params; // Extract employee ID from URL
+  const {
+    permanent_address,
+    permanent_city,
+    permanent_state,
+    permanent_zip_code,
+    current_address,
+    current_city,
+    current_state,
+    current_zip_code,
+    alternate_mob_no,
+    emergency_person_name,
+    emergency_relationship,
+    emergency_mob_no,
+    emergency_address,
+    marital_status
+  } = req.body;
+
+  // SQL query to update the employee details
+  const updateQuery = `
+    UPDATE personal_information 
+    SET 
+      permanent_address = ?, 
+      permanent_city = ?, 
+      permanent_state = ?, 
+      permanent_zip_code = ?, 
+      current_address = ?, 
+      current_city = ?, 
+      current_state = ?, 
+      current_zip_code = ?, 
+      alternate_mob_no = ?, 
+      emergency_person_name = ?, 
+      emergency_relationship = ?, 
+      emergency_mob_no = ?, 
+      emergency_address = ?, 
+      marital_status = ? 
+    WHERE emp_id = ?`;
+
+  // Execute the query
+  db.execute(updateQuery, [
+    permanent_address, 
+    permanent_city, 
+    permanent_state, 
+    permanent_zip_code, 
+    current_address, 
+    current_city, 
+    current_state, 
+    current_zip_code, 
+    alternate_mob_no, 
+    emergency_person_name, 
+    emergency_relationship, 
+    emergency_mob_no, 
+    emergency_address, 
+    marital_status, 
+    id // The employee ID to update
+  ], (err, results) => {
+    if (err) {
+      console.error('Error updating employee details:', err);
+      return res.status(500).send({ success: false, error: err.message });
+    }
+
+    // Check if the employee was found and updated
+    if (results.affectedRows === 0) {
+      return res.status(404).send({ success: false, error: "Employee not found" });
+    }
+
+    // Successfully updated
+    res.send({ success: true, message: "Employee details updated successfully" });
+  });  
+});
+
+// Update employee educational details
+addUserRoutes.put("/updateEducation/:emp_id", async (req, res) => {
+  const { emp_id } = req.params;
+  const { degree, institution, year_of_passing } = req.body;
+
+  // Validation: Check if required fields are provided
+  if (!degree || !institution || !year_of_passing) {
+    return res.status(400).json({
+      success: false,
+      error: "All fields (degree, institution, year_of_passing) are required.",
+    });
+  }
+
+  // Query to update education details
+  const query = `UPDATE educational_background SET degree = ?, institution = ?, year_of_passing = ? WHERE emp_id = ?`;
+
+  db.query(query, [degree, institution, year_of_passing, emp_id], (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to update education details",
+        details: err.message,
+      });
+    }
+
+    // Check if the employee was found and updated
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Employee not found or no changes made",
+      });
+    }
+
+    // Successfully updated the education details
+    return res.json({
+      success: true,
+      message: "Education details updated successfully",
+    });
+  });
+});
+
+ 
+// Update employee back A/C
+addUserRoutes.put("/updateBankDetails/:emp_id", async (req, res) => {
+  const { emp_id } = req.params;
+  const { account_holder_name, bank_name, branch_name, account_no, IFSC_code } = req.body;
+
+  // Validation: Check if required fields are provided
+  if (!account_holder_name || !bank_name || !branch_name || !account_no || !IFSC_code) {
+    return res.status(400).json({
+      success: false,
+      error: "All fields (account_holder_name, bank_name, branch_name, account_no, IFSC_code) are required.",
+    });
+  }
+
+  // Query to update bank details
+  const query = `UPDATE bank_details 
+                 SET account_holder_name = ?, bank_name = ?, branch_name = ?, account_no = ?, IFSC_code = ? 
+                 WHERE emp_id = ?`;
+
+  db.query(query, [account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id], (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to update bank details",
+        details: err.message,
+      });
+    }
+
+    // Check if the employee was found and updated
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Employee not found or no changes made",
+      });
+    }
+
+    // Successfully updated the bank details
+    return res.json({
+      success: true,
+      message: "Bank details updated successfully",
+    });
+  });
+});
+
+ 
+
+
+
 export default addUserRoutes;
