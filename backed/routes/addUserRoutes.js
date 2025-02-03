@@ -749,6 +749,50 @@ addUserRoutes.put("/updateEducation/:emp_id", async (req, res) => {
 });
 
  
+// Update employee back A/C
+addUserRoutes.put("/updateBankDetails/:emp_id", async (req, res) => {
+  const { emp_id } = req.params;
+  const { account_holder_name, bank_name, branch_name, account_no, IFSC_code } = req.body;
+
+  // Validation: Check if required fields are provided
+  if (!account_holder_name || !bank_name || !branch_name || !account_no || !IFSC_code) {
+    return res.status(400).json({
+      success: false,
+      error: "All fields (account_holder_name, bank_name, branch_name, account_no, IFSC_code) are required.",
+    });
+  }
+
+  // Query to update bank details
+  const query = `UPDATE bank_details 
+                 SET account_holder_name = ?, bank_name = ?, branch_name = ?, account_no = ?, IFSC_code = ? 
+                 WHERE emp_id = ?`;
+
+  db.query(query, [account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id], (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({
+        success: false,
+        error: "Failed to update bank details",
+        details: err.message,
+      });
+    }
+
+    // Check if the employee was found and updated
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Employee not found or no changes made",
+      });
+    }
+
+    // Successfully updated the bank details
+    return res.json({
+      success: true,
+      message: "Bank details updated successfully",
+    });
+  });
+});
+
  
 
 
