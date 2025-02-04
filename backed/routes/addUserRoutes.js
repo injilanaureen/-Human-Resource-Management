@@ -115,7 +115,6 @@ addUserRoutes.post('/submitUser', (req, res) => {
     rolePermission,
     empFullName,
     empPersonalEmail,
-  
     empConfirmationdate,
     empofferedCTC,
     empPhoneNo,
@@ -128,6 +127,8 @@ addUserRoutes.post('/submitUser', (req, res) => {
     empGender,
     empDob,
   } = req.body;
+
+  const employmentstatus= "Probation"
 
   // Validate required fields
   if (!empFullName || !empPersonalEmail  || !role) {
@@ -153,9 +154,10 @@ addUserRoutes.post('/submitUser', (req, res) => {
       emp_gender,
       emp_dob,
       role_id,
-      role_permission
+      role_permission,
+      emp_empstatus
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)
   `;
 
   const values = [
@@ -173,7 +175,9 @@ addUserRoutes.post('/submitUser', (req, res) => {
     empGender,
     empDob,
     role,
-    rolePermission
+    rolePermission,
+    employmentstatus
+
   ];
 
   db.query(query, values, (err, result) => {
