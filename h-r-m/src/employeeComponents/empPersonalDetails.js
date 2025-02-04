@@ -97,7 +97,7 @@ function EmployeePersonalDetails() {
           </div>
           <div>
             <p className="text-gray-500 text-xs">Date Of Birth</p>
-            <p className="text-sm">{employee.emp_dob || "Not Given "}</p>
+            <p className="text-sm">{new Date(employee.emp_dob).toLocaleDateString()|| "Not Given "}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Marital Status</p>
@@ -219,12 +219,12 @@ function EmployeePersonalDetails() {
         </div>
 
         {/* Separator */}
-        <hr className="my-6 border-gray-200" />
+        {/* <hr className="my-6 border-gray-200" /> */}
 
          
         {/* Personal Identity
 Section */}
-        <div>
+        {/* <div>
           <h3 className="text-sm font-medium mb-3">Personal Identity</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
 
@@ -242,7 +242,7 @@ Section */}
           </div>
           
         </div>
-        </div>
+        </div> */}
         
         {/* Separator */}
         <hr className="my-6 border-gray-200" />
