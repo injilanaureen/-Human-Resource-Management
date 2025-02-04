@@ -128,7 +128,9 @@ addUserRoutes.post('/submitUser', (req, res) => {
     empDob,
   } = req.body;
 
-  const employmentstatus= "Probation"
+  const employmentstatus= "Probation";
+  const last_updated= 'New';
+  const last_updated_time= new Date();
 
   // Validate required fields
   if (!empFullName || !empPersonalEmail  || !role) {
@@ -155,9 +157,11 @@ addUserRoutes.post('/submitUser', (req, res) => {
       emp_dob,
       role_id,
       role_permission,
-      emp_empstatus
+      emp_empstatus,
+      last_updated_status,
+      last_updated_time
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?)
   `;
 
   const values = [
@@ -176,7 +180,9 @@ addUserRoutes.post('/submitUser', (req, res) => {
     empDob,
     role,
     rolePermission,
-    employmentstatus
+    employmentstatus,
+    last_updated,
+    last_updated_time
 
   ];
 
@@ -227,6 +233,10 @@ addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
     IFSC_code,
     education
   } = req.body;
+  const last_updated_status= 'updated';
+  const last_updated_time= new Date();
+      const last_updated_querry = "UPDATE master SET last_updated_time = ? , last_updated_status = ?  where emp_id = ? ; ";  
+
 
   // ✅ Insert into `bank_details`
   const bankQuery = `INSERT INTO bank_details (account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id) VALUES (?, ?, ?,?, ?, ?)`;
@@ -299,7 +309,26 @@ addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
         });
       }
     });
+
+    db.query (last_updated_querry , [last_updated_time , last_updated_status , emp_id], function (result , error ){
+      console.error("Error inserting into bank_details:", error);
+      return res.status(500).json({
+        success: false,
+        error: "master error occurred ",
+        details: error.message
+      });
+    })
+
+
+
+
   });
+
+
+
+
+
+
 });
 
 //fetch employee
@@ -313,6 +342,8 @@ SELECT
     e.emp_designation AS emp_designationid,
     e.emp_confirmation_date,
     e.emp_empstatus,
+    e.last_updated_time,
+    e.last_updated_status,
     e.emp_offered_ctc,
     e.emp_personal_email,
     e.emp_phone_no,
@@ -397,6 +428,7 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
     e.emp_phone_no,
     e.emp_addhar_no,
     e.emp_pan_card_no,
+   
     d.dep_name AS emp_department,
     des.designation_name AS emp_designation,
     e.emp_gender,
@@ -491,6 +523,8 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
 addUserRoutes.put('/updateUserStatus', (req, res) => {
 
   let { id, empStatus, empManager, empTeamLeader, workEmail, empPassword } = req.body;
+  const last_updated_status= 'Activated';
+  const last_updated_time= new Date();
   console.log(req.body)
 
   if (!id) {
@@ -570,11 +604,13 @@ addUserRoutes.put('/updateUserStatus', (req, res) => {
         team_leader_id= ?, 
         emp_email = ?, 
         emp_password = ?, 
+        last_updated_status =?, 
+        last_updated_time =?,
         emp_id = ?
       WHERE id = ?
     `;
 
-    db.query(updateQuery, [empStatus, empManager, empTeamLeader, workEmail, empPassword, empIdToUse, id], (err, result) => {
+  db.query(updateQuery, [empStatus, empManager, empTeamLeader, workEmail, empPassword,last_updated_status,last_updated_time,empIdToUse, id], (err, result) => {
       if (err) {
         console.error("Database error:", err);
         return res.status(500).json({

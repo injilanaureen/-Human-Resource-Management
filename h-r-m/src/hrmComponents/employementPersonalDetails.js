@@ -429,7 +429,7 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
     )}
 
     {step === 3 && (
-      <div className="space-y-4">
+       <div className="space-y-4">
         {formData.education.map((edu, index) => (
           <div key={index}>
             <label>{edu.degree} - Institution *</label>
