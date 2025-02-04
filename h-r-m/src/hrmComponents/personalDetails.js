@@ -8,12 +8,13 @@ function Personaldetails() {
     const { id } = useParams(); 
       console.log(id);
       const [employee, setEmployee] = useState(null); 
-      console.log(employee);
+      const [employeeEducation, setEmployeeEducation] = useState([]); 
+    
       
   const getEmployee = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/adduser/getSingleEmployee/${id}`);
-      console.log(response.data);
+ 
       if (response.data.success) {
         setEmployee(response.data.data);
       } 
@@ -24,10 +25,25 @@ function Personaldetails() {
       console.error("Failed to fetch employee:", error);
     }
   };
-
+  const getEmployeeEducation = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/adduser/getSingleEmployeeeducation/${id}`);
+      console.log(response.data); // Check what the backend returns
+      if (response.data.success && Array.isArray(response.data.data)) {  
+        setEmployeeEducation(response.data.data); // Use response.data.data
+      } else {
+        console.error("Unexpected response format:", response.data);
+      }
+      
+    } catch (error) {
+      console.error("Failed to fetch employee education:", error);
+    }
+  };
+  
 
   useEffect(() => {
     getEmployee();
+    getEmployeeEducation();
   },[id])
 
         // Check if employee data is null or undefined before rendering
@@ -143,31 +159,28 @@ Section */}
           
         </div>
         </div>
-        
+
         {/* Separator */}
         <hr className="my-6 border-gray-200" />
          
-        {/* Personal Identity
+        {/* Education
 Section */}
         <div>
-          <h3 className="text-sm font-medium mb-3">Personal Identity</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-
-          <div>
-            <p className="text-gray-500 text-xs">Addhaar</p>
-            <p className="text-sm">{employee.emp_addhar_no || "Not Provided"}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Pan</p>
-            <p className="text-sm">{employee.emp_pan_card_no || "Not Provided"}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Driving Licence</p>
-            <p className="text-sm">{employee.driving_Licence || "Not Provided"}</p>
-          </div>
-          
+  <h3 className="text-sm font-medium mb-3">Education</h3>
+  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+    {employeeEducation && employeeEducation.length > 0 ? (
+      employeeEducation.map((edu, index) => (
+        <div key={index}>
+          <p className="text-gray-500 text-xs">{edu.degree}</p>
+          <p className="text-sm">{edu.institution || "Not Provided"}</p>
+          <p className="text-sm">{edu.year_of_passing || "Not Provided"}</p>
         </div>
-        </div>
+      ))
+    ) : (
+      <p className="text-sm">No Education Details Provided</p>
+    )}
+  </div>
+</div>
         
         {/* Separator */}
         <hr className="my-6 border-gray-200" />
