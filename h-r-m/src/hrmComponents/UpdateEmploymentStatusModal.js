@@ -98,7 +98,7 @@ e.preventDefault();
               <option value="">Select Status</option>
               <option value="Permanent">Permanent</option>
               <option value="Probation">Probation</option>
-              <option value="Resigned">Resigned</option>
+              <option value="On Resign">On Resign</option>
             </select>
           </div>
 
