@@ -916,6 +916,67 @@ addUserRoutes.put("/updateBankDetails/:emp_id", async (req, res) => {
 });
 
  
+addUserRoutes.put('/updatePersonalIdentity/:emp_id', (req, res) => {
+  const { emp_id } = req.params;
+  const { emp_addhar_no, emp_pan_card_no } = req.body;
+
+  console.log("Updating employee:", emp_id);
+  console.log("Request Body:", req.body);
+
+  // SQL Query to update employee's personal identity
+  const query = `
+    UPDATE master
+    SET emp_addhar_no = ?, emp_pan_card_no = ?
+    WHERE emp_id = ?;
+  `;
+  
+  // Execute the query
+  db.query(query, [emp_addhar_no, emp_pan_card_no, emp_id], (err, result) => {
+    if (err) {
+      console.error("Error updating employee:", err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+
+    console.log("Employee updated successfully:", result);
+    res.json({ success: true, message: "Employee updated successfully" });
+  });
+});
+
+
+addUserRoutes.put('/updateNamemarital_status/:id', (req, res) => {
+  const { id } = req.params;
+  const { emp_name, marital_status } = req.body;
+
+  console.log("Updating employee:", id);
+  console.log("Request Body:", req.body);
+
+  if (!emp_name || !marital_status) {
+    return res.status(400).json({ success: false, error: 'Missing required fields' });
+  }
+
+  // Update name in `master` table
+  const updateMasterQuery = `UPDATE master SET emp_full_name = ? WHERE emp_id = ?`;
+
+  // Update marital status in `personal_details` table
+  const updatePersonalQuery = `UPDATE personal_information SET marital_status = ? WHERE emp_id = ?`;
+
+  db.query(updateMasterQuery, [emp_name, id], (err, result1) => {
+    if (err) {
+      console.error("Error updating master table:", err);
+      return res.status(500).json({ success: false, error: err.message });
+    }
+
+    db.query(updatePersonalQuery, [marital_status, id], (err, result2) => {
+      if (err) {
+        console.error("Error updating personal_details table:", err);
+        return res.status(500).json({ success: false, error: err.message });
+      }
+
+      console.log("Employee updated successfully");
+      res.json({ success: true, message: 'Employee updated successfully' });
+    });
+  });
+});
 
 
 

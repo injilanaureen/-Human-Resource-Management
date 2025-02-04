@@ -3,97 +3,115 @@ import axios from 'axios';
 
 const HRDocuments = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [file, setFile] = useState(null); // Store a single file
-  const [title, setTitle] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
+  const [documents, setDocuments] = useState({
+    aadharFront: null,
+    aadharBack: null,
+    panCard: null,
+    degree: null,
+    highSchoolMarksheet: null,
+    intermediateMarksheet: null,
+  });
 
-  const showModal = () => {
-    setIsModalVisible(true);
+  const handleFileChange = (e, docType) => {
+    setDocuments((prevDocs) => ({
+      ...prevDocs,
+      [docType]: e.target.files[0],
+    }));
   };
 
-  const handleOk = async () => {
-    if (!title) {
-      alert('Please enter a document title!');
-      return;
-    }
-
-    if (!file) {
-      alert('Please upload a document.');
+  const handleSubmit = async () => {
+    if (!employeeId) {
+      alert('Please enter Employee ID!');
       return;
     }
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('file', file); // Use 'file' field to match backend
-
-    // Log the FormData contents
-    formData.forEach((value, key) => {
-      console.log(`${key}:`, value);
+    formData.append('employeeId', employeeId);
+    Object.keys(documents).forEach((key) => {
+      if (documents[key]) {
+        formData.append(key, documents[key]);
+      }
     });
 
     try {
-      // Simulate a successful upload
-      alert('Document uploaded successfully!');
+      const response = await axios.post('http://localhost:5000/api/upload/uploading', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      alert('Documents uploaded successfully!');
       setIsModalVisible(false);
-      setTitle('');
-      setFile(null); // Clear file only after upload is successful
+      setEmployeeId('');
+      setDocuments({
+        aadharFront: null,
+        aadharBack: null,
+        panCard: null,
+        degree: null,
+        highSchoolMarksheet: null,
+        intermediateMarksheet: null,
+      });
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to upload document');
+      console.error('Error:', error.response || error);
+      alert('Failed to upload documents');
     }
   };
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]); // Only store the first file
-  };
-
   return (
-    <div>
+    <div className="p-4">
+      <h2 className="text-2xl font-bold mb-4">Upload Documents</h2>
       <button
-        onClick={showModal}
-        className="fixed bottom-4 right-4 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-700"
+        onClick={() => setIsModalVisible(true)}
+        className="bg-blue-500 text-white px-4 py-2 rounded-lg"
       >
-        Documents
+        Upload Documents
       </button>
 
       {isModalVisible && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-96">
-            <h2 className="text-xl font-semibold mb-4">Update Document</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-xl font-semibold mb-4">Upload Your Documents</h3>
+
+            {/* Employee ID Input */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Document Title</label>
+              <label className="block mb-2 text-sm font-medium">Employee ID</label>
               <input
                 type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter document title"
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                placeholder="Enter Employee ID"
               />
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Upload Document</label>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="mt-1 block w-full text-sm text-gray-700 border border-gray-300 rounded-lg"
-                value={file ? file.name : ''} // Make sure the value is properly set to file's name or empty
-              />
-            </div>
+            {/* Document Uploads */}
+            {[
+              ['Aadhar Front', 'aadharFront'],
+              ['Aadhar Back', 'aadharBack'],
+              ['Pan Card', 'panCard'],
+              ['Degree', 'degree'],
+              ['High School Marksheet', 'highSchoolMarksheet'],
+              ['Intermediate Marksheet', 'intermediateMarksheet'],
+            ].map(([label, fieldName]) => (
+              <div className="mb-4" key={fieldName}>
+                <label className="block mb-2 text-sm font-medium">{label}</label>
+                <input
+                  type="file"
+                  onChange={(e) => handleFileChange(e, fieldName)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                />
+              </div>
+            ))}
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end gap-2">
               <button
-                onClick={handleCancel}
-                className="px-4 py-2 bg-gray-200 rounded-lg text-gray-700 hover:bg-gray-300"
+                onClick={() => setIsModalVisible(false)}
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg"
               >
                 Cancel
               </button>
               <button
-                onClick={handleOk}
-                className="px-4 py-2 bg-blue-500 rounded-lg text-white hover:bg-blue-700"
+                onClick={handleSubmit}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg"
               >
                 Upload
               </button>
@@ -104,6 +122,5 @@ const HRDocuments = () => {
     </div>
   );
 };
-
 
 export default HRDocuments;

@@ -43,56 +43,65 @@ function EmployeeOverview() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <p className="text-gray-500 text-xs">Employee ID</p>
-            <p className="text-sm">{employee.emp_id || "PPIN346"}</p>
+            <p className="text-sm">{employee.emp_id}</p>
           </div>
           <div>
-            <p className="text-gray-500 text-xs">Official Email ID</p>
-            <p className="text-sm">{employee.emp_email || "user@nikatby.com"}</p>
+            <p className="text-gray-500 text-xs">Email ID</p>
+            <p className="text-sm">{employee.emp_personal_email}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Department</p>
-            <p className="text-sm">{employee.emp_department || "HR-Corporate"}</p>
+            <p className="text-sm">{employee.emp_department}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Current Office Location</p>
-            <p className="text-sm">{employee.office_location || "Nikatby technologies pvt ltd, Noida, Uttar Pradesh, India (Non-Metro City)"}</p>
+            <p className="text-sm">
+              {employee.office_location ||
+                "Nikatby technologies pvt ltd, Noida, Uttar Pradesh, India (Non-Metro City)"}
+            </p>
           </div>
-          <div>
-            <p className="text-gray-500 text-xs">Office Mobile No</p>
-            <p className="text-sm">{employee.emp_phone_no || "8595800754"}</p>
-          </div>
+              
           <div>
             <p className="text-gray-500 text-xs">HOD</p>
-            <p className="text-sm">{employee.hod || "Dr Bandana Kedia (PPIN311)"}</p>
+            <p className="text-sm">
+              {employee.hod || "Dr Bandana Kedia (PPIN311)"}
+            </p>
           </div>
           <div>
-            <p className="text-gray-500 text-xs">Grade</p>
-            <p className="text-sm">{employee.grade || "JG5"}</p>
+            <p className="text-gray-500 text-xs">Gender</p>
+            <p className="text-sm">{employee.emp_gender}</p>
           </div>
-      
+
           <div>
             <p className="text-gray-500 text-xs">Date of Joining</p>
-            <p className="text-sm">{new Date(employee.emp_join_date).toLocaleDateString() || "28-02-2022"}</p>
+            <p className="text-sm">
+              {new Date(employee.emp_join_date).toLocaleDateString() ||
+                "28-02-2022"}
+            </p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Date of Confirmation</p>
-            <p className="text-sm">{new Date(employee.emp_confirm_date).toLocaleDateString() || "27-08-2022"}</p>
+            <p className="text-sm">
+              {new Date(employee.emp_confirmation_date).toLocaleDateString()}
+            </p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Company</p>
-            <p className="text-sm">{employee.company || "NikatBy Technologies  Pvt. Ltd."}</p>
+            <p className="text-sm">
+              {employee.company || "NikatBy Technologies  Pvt. Ltd."}
+            </p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Team Leader</p>
-            <p className="text-sm">{employee.team_leader_name || "Not Assigned"}</p>
+            <p className="text-sm">{employee.team_leader_name}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Manager</p>
-            <p className="text-sm">{employee.manager_name || "Not Assigned"}</p>
+            <p className="text-sm">{employee.manager_name}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Assigned Permission</p>
-            <p className="text-sm">{employee.permissions || "Regional HRBP Heads, Performance Admins"}</p>
+            <p className="text-sm">{employee.permission}</p>
           </div>
         </div>
 
