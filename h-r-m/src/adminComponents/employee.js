@@ -8,20 +8,20 @@ import { FolderInput } from 'lucide-react';
 import { CSVLink } from 'react-csv';
 
 import { EllipsisVertical } from 'lucide-react';
+import ResignedEmployees from "./resignedEmployees";
 
 const EmployeeTabs = () => {
-  const [activeTab, setActiveTab] = useState('active'); // 'active', 'inactive', 'workReport'
+  const [activeTab, setActiveTab] = useState('active'); // 'active', 'inactive', 'Resigned'
   const [employees, setEmployees] = useState([]);
   const [inactiveEmployees, setInactiveEmployees] = useState([]);
   const [activeEmployees, setActiveEmployees] = useState([]);
   const [managerList, setManagerList] = useState([]);
   const [teamLeaderList, setTeamLeaderList] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-    const [filteredEmployees, setFilteredEmployees] = useState([]);
-  
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
-   const [searchTerm, setSearchTerm] = useState('');
-     const [settings, setSettings] = useState({
+  const [searchTerm, setSearchTerm] = useState('');
+  const [settings, setSettings] = useState({
        groupBy: '',  // For grouping employees (designation, department, etc.)
        column1: true,  // Name column
        column2: true,  // ID column
@@ -32,9 +32,8 @@ const EmployeeTabs = () => {
        column7: true,  // Office Mobile Number column
        column8: true,  // Current Role column
      });
-     
-     const [filterSheet,setFilterSheet] = useState(false);
-     const [filters,setFilters] = useState({
+  const [filterSheet,setFilterSheet] = useState(false);
+  const [filters,setFilters] = useState({
        empDepartment: '',
        empDesignation: '',
        empJoinDate: '',
@@ -227,10 +226,10 @@ const EmployeeTabs = () => {
         Inactive Employees
       </button>
       <button
-        onClick={() => handleTabClick('workReport')}
-        className={`py-1 px-3 ${activeTab === 'workReport' ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-800'} rounded-md text-sm`}
+        onClick={() => handleTabClick('resign')}
+        className={`py-1 px-3 ${activeTab === 'resign' ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-800'} rounded-md text-sm`}
       >
-        Work Report
+        Resigned Employees
       </button>
     </div>
   
@@ -239,7 +238,7 @@ const EmployeeTabs = () => {
       <div>
         <div>
           <h1 className="text-lg font-semibold mb-4 mt-10">Active Employees</h1>
-          <div className="flex justify-between items-center m-10 mb-6 mr-0 ml-0">  
+             <div className="flex justify-between items-center m-10 mb-6 mr-0 ml-0">  
              {/** search */}
            <div className='border-2 flex gap-1 p-2 items-center border-gray-400 rounded-lg'>
              <Search className='text-gray-600 size-4'/>
@@ -303,7 +302,7 @@ const EmployeeTabs = () => {
         </CSVLink>
         </button>
            </div>
-      </div>
+            </div>
         </div>
         <table className="min-w-full table-auto text-sm">
           <thead>
@@ -462,13 +461,12 @@ const EmployeeTabs = () => {
       </div>
     )}
   
-    {activeTab === 'workReport' && (
+     {activeTab === 'resign' && (
       <div>
         <h1 className="text-lg font-semibold mb-4">Work Report</h1>
-        {/* Add work report table content */}
+        <ResignedEmployees/>
       </div>
     )}
-  
     {/* Modal Dialog for editing employee details */}
     {showDialog && (
       <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-10">

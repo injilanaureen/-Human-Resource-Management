@@ -18,6 +18,7 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
     emergency_mob_no: '',
     emergency_address: '',
     marital_status: '',
+    blood_group:'',
     account_holder_name: '',
     bank_name: '',
     branch_name: '',
@@ -70,6 +71,7 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
           emergency_mob_no: '',
           emergency_address: '',
           marital_status: '',
+          blood_group:'',
           account_holder_name: '',
           bank_name: '',
           branch_name: '',
@@ -309,6 +311,22 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
               <option value="Widowed">Widowed</option>
             </select>
           </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">  
+          <div>
+            <label>Blood Group</label>
+            <input
+              type="text"
+              name="blood_group"
+              value={formData.blood_group}
+              onChange={handleChange}
+              required
+              className="w-full p-2 border rounded-md"
+              placeholder="Enter Emergency Address"
+            />
+          </div>
+        
         </div>
 
       <div className="flex justify-end gap-2">
