@@ -314,18 +314,27 @@ function EmployeePersonalDetailsForm({ setShowDialog1,selectedEmployee1}) {
         </div>
 
         <div className="grid grid-cols-2 gap-4">  
-          <div>
-            <label>Blood Group</label>
-            <input
-              type="text"
-              name="blood_group"
-              value={formData.blood_group}
-              onChange={handleChange}
-              required
-              className="w-full p-2 border rounded-md"
-              placeholder="Enter Emergency Address"
-            />
-          </div>
+        <div>
+  <label className="block text-sm font-medium text-gray-700">Blood Group</label>
+  <select
+    name="blood_group"
+    value={formData.blood_group}
+    onChange={handleChange}
+    required
+    className="w-full p-2 border rounded-md"
+  >
+    <option value="">Select Blood Group</option>
+    <option value="A+">A+</option>
+    <option value="A-">A-</option>
+    <option value="B+">B+</option>
+    <option value="B-">B-</option>
+    <option value="O+">O+</option>
+    <option value="O-">O-</option>
+    <option value="AB+">AB+</option>
+    <option value="AB-">AB-</option>
+  </select>
+</div>
+
         
         </div>
 

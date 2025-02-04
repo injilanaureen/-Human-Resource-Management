@@ -229,7 +229,7 @@ addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
   } = req.body;
 
   // ✅ Insert into `bank_details`
-  const bankQuery = `INSERT INTO bank_details (account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id) VALUES (?, ?, ?,?, ?, ?, ?)`;
+  const bankQuery = `INSERT INTO bank_details (account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id) VALUES (?, ?, ?,?, ?, ?)`;
   db.query(bankQuery, [account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id], (bankError, bankResults) => {
     if (bankError) {
       console.error("Error inserting into bank_details:", bankError);
