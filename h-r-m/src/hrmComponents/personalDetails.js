@@ -188,7 +188,7 @@ Section */}
         {/* Personal Documents Section */}
         <div>
           <h3 className="text-sm font-medium mb-3">Personal Documents</h3>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <div>
             <p className="text-gray-500 text-xs">Addhaar Back</p>
             <img className="size-10" alt="adhar" src="/attendance.png"></img>
