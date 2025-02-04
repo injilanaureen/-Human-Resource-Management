@@ -115,7 +115,6 @@ addUserRoutes.post('/submitUser', (req, res) => {
     rolePermission,
     empFullName,
     empPersonalEmail,
-  
     empConfirmationdate,
     empofferedCTC,
     empPhoneNo,
@@ -125,7 +124,11 @@ addUserRoutes.post('/submitUser', (req, res) => {
     empDesignation,
     empJoinDate,
     empStatus,
+    empGender,
+    empDob,
   } = req.body;
+
+  const employmentstatus= "Probation"
 
   // Validate required fields
   if (!empFullName || !empPersonalEmail  || !role) {
@@ -148,10 +151,13 @@ addUserRoutes.post('/submitUser', (req, res) => {
       emp_designation,
       emp_join_date,
       emp_status,
+      emp_gender,
+      emp_dob,
       role_id,
-      role_permission
+      role_permission,
+      emp_empstatus
     ) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)
   `;
 
   const values = [
@@ -166,8 +172,12 @@ addUserRoutes.post('/submitUser', (req, res) => {
     empDesignation,
     empJoinDate,
     empStatus,
+    empGender,
+    empDob,
     role,
-    rolePermission
+    rolePermission,
+    employmentstatus
+
   ];
 
   db.query(query, values, (err, result) => {
@@ -209,6 +219,7 @@ addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
     emergency_mob_no,
     emergency_address,
     marital_status,
+    blood_group,
     account_holder_name,
     bank_name,
     branch_name,
@@ -218,7 +229,7 @@ addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
   } = req.body;
 
   // ✅ Insert into `bank_details`
-  const bankQuery = `INSERT INTO bank_details (account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id) VALUES (?, ?, ?, ?, ?, ?)`;
+  const bankQuery = `INSERT INTO bank_details (account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id) VALUES (?, ?, ?,?, ?, ?, ?)`;
   db.query(bankQuery, [account_holder_name, bank_name, branch_name, account_no, IFSC_code, emp_id], (bankError, bankResults) => {
     if (bankError) {
       console.error("Error inserting into bank_details:", bankError);
@@ -231,13 +242,13 @@ addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
 
     // ✅ Insert into `personal_information`
     const personalQuery = `INSERT INTO personal_information (permanent_address, permanent_city, permanent_state, permanent_zip_code, current_address, current_city, current_state,
-        current_zip_code, alternate_mob_no, emergency_person_name, emergency_relationship, emergency_mob_no, emergency_address, marital_status, emp_id) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        current_zip_code, alternate_mob_no, emergency_person_name, emergency_relationship, emergency_mob_no, emergency_address, marital_status,blood_group, emp_id) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
     db.query(personalQuery, [
       permanent_address, permanent_city, permanent_state, permanent_zip_code,
       current_address, current_city, current_state, current_zip_code,
       alternate_mob_no, emergency_person_name, emergency_relationship,
-      emergency_mob_no, emergency_address, marital_status, emp_id
+      emergency_mob_no, emergency_address, marital_status,blood_group, emp_id
     ], (personalError, personalResults) => {
       if (personalError) {
         console.error("Error inserting into personal_information:", personalError);
@@ -290,8 +301,6 @@ addUserRoutes.post('/submitPersonalInformation', async(req, res) => {
     });
   });
 });
-
-
 
 //fetch employee
 addUserRoutes.get('/getAllEmployees', (req, res) => {
@@ -478,8 +487,6 @@ addUserRoutes.get('/getSingleEmployee/:emp_id', (req, res) => {
   
 });
 
-
-
 // Update user status
 addUserRoutes.put('/updateUserStatus', (req, res) => {
 
@@ -613,6 +620,54 @@ addUserRoutes.put('/updateEmploymentStatus', (req, res) => {
   });
 });
 
+
+addUserRoutes.post("/resigned_employees", (req, res) => {
+  const { emp_id, employee_name, last_working_day, total_work_period, last_ctc_drawn, last_designation, reason_for_resignation,
+     feedback, exit_interview_done, notice_period_served,emp_status,emp_empstatus } = req.body;
+
+  const resigntablequery = `INSERT INTO resigned_emp 
+    (emp_id, employee_name, last_working_day, total_work_period, last_ctc_drawn, last_designation, reason_for_resignation,
+     feedback, exit_interview_done, notice_period_served) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+ 
+  const mastertableresignquery=  `
+  UPDATE master 
+  SET 
+    emp_empstatus = ?, 
+    emp_status=?
+   WHERE emp_id = ?
+`;
+
+  db.query(resigntablequery, 
+    [emp_id, employee_name, last_working_day, total_work_period, last_ctc_drawn, last_designation, reason_for_resignation, feedback, exit_interview_done, notice_period_served], 
+    (error, results) => {
+      if (error) {
+        console.error("Database error:", error);
+        return res.status(500).json({ message: "Database error" });
+      }
+      res.status(200).json({ message: "Resignation details saved successfully" });
+    }
+  );
+  db.query(mastertableresignquery, [emp_empstatus, emp_status, emp_id], (err, result) => {
+    if (err) {
+      console.error("Database error:", err);
+      return res.status(500).json({ success: false, error: "Failed to update employment details", details: err });
+    }
+
+    return res.json({ success: true, message: "Employment details updated successfully" });
+  });
+});
+
+
+addUserRoutes.get("/fetch_resigned_employees", (req, res) => {
+  db.query("SELECT * FROM resigned_emp", (error, rows) => {
+    if (error) {
+      console.error("Database error:", error);
+      return res.status(500).json({ message: "Database error" });
+    }
+    res.status(200).json(rows);
+  });
+});
 
 // Delete user
 addUserRoutes.delete('/deleteUser/:empId', (req, res) => {
@@ -914,9 +969,5 @@ addUserRoutes.put("/updateBankDetails/:emp_id", async (req, res) => {
     });
   });
 });
-
- 
-
-
 
 export default addUserRoutes;

@@ -12,6 +12,9 @@ import { EllipsisVertical } from 'lucide-react';
 import { motion } from "framer-motion";
 import EmployeePersonalDetailsForm from "./employementPersonalDetails";
 import UpdateEmploymentStatusModal from "./UpdateEmploymentStatusModal";
+import UpdateResignedEmployeeForm from "./updateResignedEmployeeModal";
+import ResignedEmployees1 from "./resignedEmployeeshr";
+
 
 function Employee() {
   const [formData, setFormData] = useState({
@@ -26,6 +29,8 @@ function Employee() {
     empofferedCTC:'',
     empJoinDate: '',
     empStatus: 'Inactive',
+    empGender:'',
+    empDob:'',
     role: '',
     rolePermission: '',
   });
@@ -36,6 +41,7 @@ function Employee() {
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [showDialog1, setShowDialog1] = useState(false);
+  const [showDialog2, setShowDialog2] = useState(false);
   const [allEmployeeData,setAllEmployeeData] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -44,8 +50,7 @@ function Employee() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [employmentStatus, setEmployementStatus] = useState(false);
-
-
+  const [activeTab, setActiveTab] = useState('active'); // 'active', 'inactive', 'Resigned'
  
 
   // Separate state for settings (different from filters)
@@ -168,9 +173,15 @@ function Employee() {
     try {
       const response = await axios.get('http://localhost:5000/api/adduser/getAllEmployees');
       console.log("Response data:", response.data.data); // Log the response
+      const employeesData = response.data.data;
+      
+      // Separate employees based on their statuses and roles
+      const activeEmployeesData = employeesData.filter(emp => emp.emp_status !== 'resigned');
       if (response.data.success) {
-        setAllEmployeeData(response?.data?.data);
-        setFilteredEmployees(response?.data?.data);
+      
+        setAllEmployeeData(activeEmployeesData);
+        setFilteredEmployees(activeEmployeesData);
+        
       } else {
         console.error('Failed to fetch employees:', response.data.error);
       }
@@ -213,10 +224,16 @@ function Employee() {
     setSelectedEmployee(employee);
     setEmployementStatus(true);
   };
-  const openUpdateFormModal= (employee) => {
-    setSelectedEmployee1(employee);
-    setShowDialog1(true);
+  const openUpdateFormModal = (employee) => {
+    if (employee.emp_empstatus === "Probation") {
+      setSelectedEmployee1(employee);
+      setShowDialog1(true); // Open probation update form
+    } else if (employee.emp_empstatus === "On Resign") {
+      setSelectedEmployee1(employee);
+      setShowDialog2(true); // Open resigned employee form
+    }
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -243,6 +260,8 @@ function Employee() {
           empofferedCTC:'',
           empJoinDate: '',
           empStatus: '',
+          empGender:'',
+          empDob:'',
           role: '',
           rolePermission: '',
         });
@@ -356,7 +375,11 @@ function Employee() {
     { label: 'Office Mobile Number', key: 'emp_phone_no' },
     { label: 'Current Role', key: 'role_name' }
   ];
- 
+  // Tab button handler
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
+
   return (
     <div className="max-h-screen">
       <Link to="/">
@@ -378,10 +401,34 @@ function Employee() {
           <Plus className='size-4' /><p className='text-sm font-bold'>New Hire</p> 
         </button>
       </div>
+   
+         {/** active,inactive amnd resigned roe row */}
 
-       {/** search and filter row */}
+      <div className="mb-4">
+      <button
+        onClick={() => handleTabClick('active')}
+        className={`py-1 px-3 ${activeTab === 'active' ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-800'} rounded-md mr-2 text-sm`}
+      >
+        All Employees
+      </button>
+   
+      <button
+        onClick={() => handleTabClick('resign')}
+        className={`py-1 px-3 ${activeTab === 'resign' ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-800'} rounded-md text-sm`}
+      >
+        Resigned Employees
+      </button>
+    </div>
 
-      <div className="flex justify-between items-center mt-4">  
+ 
+
+{/** employee table */}
+   <div>
+  {/* Table Section */}
+  {activeTab === 'active' && (
+    <div>
+        {/** search and filter row */}
+     <div className="flex justify-between items-center mt-10 ml-0">  
              {/** search */}
            <div className='border-2 flex gap-1 p-2 items-center border-gray-400 rounded-lg'>
              <Search className='text-gray-600 size-4'/>
@@ -446,11 +493,9 @@ function Employee() {
         </button>
            </div>
       </div>
-
-{/** employee table */}
-<div>
-  {/* Table Section */}
-  <div className="overflow-x-auto border border-gray-300 mt-10 rounded-lg">
+   
+  <div className="overflow-x-auto border border-gray-300 mt-5 rounded-lg">
+   
     <table className="min-w-full table-auto text-sm">
       <thead className="bg-primary-color text-btn-text-color font-semibold">
         <tr className="bg-indigo-400">
@@ -521,7 +566,12 @@ function Employee() {
       </tbody>
     </table>
   </div>
-</div>
+  </div>)}
+
+  {activeTab === 'resign' && (
+        <ResignedEmployees1/>  
+    )}
+   </div>
 
  {/* Employment Status Modal */}
  {employmentStatus && (
@@ -530,7 +580,7 @@ function Employee() {
         setEmployementStatus={setEmployementStatus}/>
         )}
   
-      {showDialog && (
+  {showDialog && (
         <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center">
           <div className="bg-white p-8 rounded-md w-3/4 md:w-1/2 lg:w-2/3">
             <h2 className="text-lg mb-4 font-semibold">Add Employee</h2>
@@ -614,19 +664,7 @@ function Employee() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label htmlFor="empPersonalEmail" className="block">Personal Email *</label>
-                  <input
-                    type="email"
-                    id="empPersonalEmail"
-                    name="empPersonalEmail"
-                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
-                    placeholder="Personal Email"
-                    value={formData.empPersonalEmail}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+               
 
                 
               </div>
@@ -661,7 +699,7 @@ function Employee() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label htmlFor="empPanCardNo" className="block">Confirmation Date</label>
+                  <label htmlFor="empConfirmationdate" className="block">Confirmation Date</label>
                   <input
                     type="date"
                     id="empConfirmationdate"
@@ -729,6 +767,49 @@ function Employee() {
                   
                   </select>
                 </div>
+                <div>
+                  <label htmlFor="empPersonalEmail" className="block">Personal Email *</label>
+                  <input
+                    type="email"
+                    id="empPersonalEmail"
+                    name="empPersonalEmail"
+                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
+                    placeholder="Personal Email"
+                    value={formData.empPersonalEmail}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label htmlFor="empDob" className="block">Date of Birth *</label>
+                  <input
+                    type="date"
+                    id="empDob"
+                    name="empDob"
+                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
+                    value={formData.empDob}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="empGender" className="block">Gender *</label>
+                  <select
+                    id="empGender"
+                    name="empGender"
+                    className="form-control db-input w-full border-2 border-grey-100 mt-2 p-2"
+                    value={formData.empGender}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  
+                  </select>
+                </div>
               </div>
 
               <div>
@@ -758,16 +839,23 @@ function Employee() {
           </div>
         </div>
       )}
-      {showDialog1 && (
-       
-       <EmployeePersonalDetailsForm
+
+ {showDialog1 && selectedEmployee1?.emp_empstatus === "Probation" && (
+   <EmployeePersonalDetailsForm
        setSelectedDepartment={setSelectedDepartment}
        setShowDialog1={setShowDialog1}    
        selectedEmployee1={selectedEmployee1}
-       />
-      )}
+   />
+)}
 
-      {filterSheet && (
+{showDialog2 && selectedEmployee1?.emp_empstatus === "On Resign" && (
+   <UpdateResignedEmployeeForm
+       setShowDialog2={setShowDialog2}
+       selectedEmployee1={selectedEmployee1}
+   />
+)}
+
+{filterSheet && (
           <div className="fixed top-0 right-0 z-50 items-center bg-black bg-opacity-50 backdrop-blur-sm w-full justify-center h-screen">
                  <motion.div
         initial={{ x: "100%" }} // Start outside the screen
@@ -899,7 +987,7 @@ function Employee() {
             </motion.div>
               </div>
             
-      )}
+              )}
 
 {isSidebarOpen && (
   <div className={`fixed top-0 right-0 z-50 w-80 h-full bg-white shadow-lg transition-transform transform ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
