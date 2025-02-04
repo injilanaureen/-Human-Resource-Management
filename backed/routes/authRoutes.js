@@ -80,7 +80,7 @@ authRouter.put('/updateUserPassword', (req, res) => {
   if (!empId || !oldPassword || !newPassword) {
       return res.status(400).json({
           success: false,
-          message: 'All fields are required'
+          message: 'All fields are1 required'
       });
   }
 
@@ -99,7 +99,7 @@ authRouter.put('/updateUserPassword', (req, res) => {
       if (results.length === 0) {
           return res.status(401).json({
               success: false,
-              message: 'Invalid employee ID or current password'
+              message: 'Invalid current password'
           });
       }
 
@@ -128,6 +128,6 @@ authRouter.put('/updateUserPassword', (req, res) => {
           }
       });
   });
-});;
+});
 
 export default authRouter;
