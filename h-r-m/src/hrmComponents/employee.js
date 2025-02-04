@@ -514,6 +514,8 @@ function Employee() {
           <th className="py-2 px-3 text-white text-left">Joining Date</th>
           <th className="py-2 px-3 text-white text-left">Status</th>
           <th className="py-2 px-3 text-white text-left">Employement Status</th>
+          <th className="py-2 px-3 text-white text-left">Last Updated Time</th>
+          <th className="py-2 px-3 text-white text-left">last Updated Status</th>
           <th className="py-2 px-3 text-white text-left">Action</th>
           <th className="py-2 px-3 text-white text-left">Update</th>
         </tr>
@@ -559,6 +561,8 @@ function Employee() {
                   }
                 })()}
               </td>
+              <td className="py-2 px-3">{row.last_updated_time}</td>
+            <td className="py-2 px-3">{row.last_updated_status}</td>
             <td className="py-2 px-3"><button className='p-2 bg-indigo-500 text-white' onClick={()=>openEmploymentModal(row)}>Edit</button></td>
             <td className="py-2 px-3"><button className='p-2 bg-indigo-500 text-white' onClick={()=>openUpdateFormModal(row)}>Update</button></td>
           </tr>
