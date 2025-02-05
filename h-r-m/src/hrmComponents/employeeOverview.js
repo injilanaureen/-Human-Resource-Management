@@ -114,19 +114,35 @@ function EmployeeOverview() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <p className="text-gray-500 text-xs">First Name</p>
-              <p className="text-sm">{employee.first_name || "User"}</p>
+              <p className="text-sm">
+                {" "}
+                {employee.emp_full_name
+                  ? employee.emp_full_name.split(" ")[0]
+                  : "NA"}
+              </p>
             </div>
             <div>
               <p className="text-gray-500 text-xs">Middle Name</p>
-              <p className="text-sm">{employee.middle_name || "N.A"}</p>
+              <p className="text-sm">
+                {" "}
+                {employee.emp_full_name
+                  ? employee.emp_full_name.split(" ")[1] || "NA"
+                  : "NA"}
+              </p>
             </div>
             <div>
               <p className="text-gray-500 text-xs">Last Name</p>
-              <p className="text-sm">{employee.last_name || "name"}</p>
+              <p className="text-sm">
+                {employee.emp_full_name
+                  ? employee.emp_full_name.split(" ")[2] || "NA"
+                  : "NA"}
+              </p>
             </div>
             <div>
               <p className="text-gray-500 text-xs">Date of Birth</p>
-              <p className="text-sm">{employee.dob || "22-04-1994"}</p>
+              <p className="text-sm">
+                {new Date(employee.emp_dob).toLocaleDateString()}
+              </p>
             </div>
           </div>
         </div>
