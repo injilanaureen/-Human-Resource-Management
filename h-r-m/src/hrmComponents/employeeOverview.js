@@ -10,7 +10,7 @@ function EmployeeOverview() {
   const getEmployee = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/adduser/getSingleEmployee/${id}`);
-      console.log(response.data.data);
+      console.log(response.data);
       if (response.data.success) {
         setEmployee(response.data.data);
       } else {
@@ -51,8 +51,7 @@ function EmployeeOverview() {
           </div>
           <div>
             <p className="text-gray-500 text-xs">Department</p>
-            <p className="text-sm">{employee.emp_department?.[0]?.dep_name || "Department Not Found"}</p>
-
+            <p className="text-sm">{employee.emp_department}</p>
           </div>
           <div>
             <p className="text-gray-500 text-xs">Current Office Location</p>
@@ -168,29 +167,29 @@ function EmployeeOverview() {
           <h3 className="text-sm font-medium mb-6">Organization Chart</h3>
           <div className="relative">
           <div className="flex flex-col items-center">
-          <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300">
+  <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300">
   {
-      // Dynamically extract initials from the full name string using optional chaining
-      employee?.manager_name 
+      // Dynamically extract initials from the full name string
+      employee.manager_name 
       ? employee.manager_name
           .split(' ')  // Split the name by spaces
           .map((namePart) => namePart.charAt(0).toUpperCase())  // Get first letter of each part
           .join('')  // Join the initials together
-      : ''  // Default to empty string if no manager_name exists
-  }
-</div>
-<div className="text-center">
-  <p className="text-xs font-medium">{employee?.manager_name}</p>  {/* Full name dynamically rendered */}
-  <p className="text-xs text-gray-500">Director- People & Culture</p>
-</div>
-<div className="h-8 w-px bg-gray-300 my-2"></div>
+      : ''  // Default to empty string if no team_leader_name exists
+    }
+  </div>
+  <div className="text-center">
+    <p className="text-xs font-medium">{ employee.manager_name}</p>  {/* Full name dynamically rendered */}
+    <p className="text-xs text-gray-500">Director- People & Culture</p>
+  </div>
+  <div className="h-8 w-px bg-gray-300 my-2"></div>
 </div>
 
 <div className="flex flex-col items-center">
   <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300">
     {
-      // Dynamically extract initials from the full name string using optional chaining
-      employee?.team_leader_name 
+      // Dynamically extract initials from the full name string
+      employee.team_leader_name 
       ? employee.team_leader_name
           .split(' ')  // Split the name by spaces
           .map((namePart) => namePart.charAt(0).toUpperCase())  // Get first letter of each part
@@ -199,7 +198,7 @@ function EmployeeOverview() {
     }
   </div>
   <div className="text-center">
-    <p className="text-xs font-medium">{employee?.team_leader_name}</p>  {/* Full name dynamically rendered */}
+    <p className="text-xs font-medium">{employee.team_leader_name}</p>  {/* Full name dynamically rendered */}
     <p className="text-xs text-gray-500">Director- People & Culture</p>
   </div>
   <div className="h-8 w-px bg-gray-300 my-2"></div>
@@ -217,9 +216,9 @@ function EmployeeOverview() {
     </div>
     <div className="flex flex-col gap-2">
       <p className="text-xs font-medium text-white">{employee.emp_full_name}</p>
-      <p className="text-sm">{employee.emp_designation?.[0]?.designation_name || "Designation Not Found"}</p>
-      <p className="text-sm">{employee.emp_department?.[0]?.dep_name || "Department Not Found"}</p>
-      </div>
+      <p className="text-xs text-white">{employee.emp_designation || "Associate Lead - HRBP"}</p>
+      <p className="text-xs text-white">{employee.emp_department || "Associate Lead - HRBP"}</p>
+    </div>
   </div>
 </div>
 
