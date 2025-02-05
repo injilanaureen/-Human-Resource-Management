@@ -139,7 +139,7 @@ function EmployeeOverview() {
         <div>
           <h3 className="text-sm font-medium mb-3">Contact</h3>
           <div>
-            <p className="text-gray-500 text-xs">Office Mobile No</p>
+            <p className="text-gray-500 text-xs">Office Mobile No1</p>
             <p className="text-sm">{employee.office_mobile_no || "8595800754"}</p>
           </div>
         </div>
