@@ -1,148 +1,102 @@
-
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
-import { FaEdit } from "react-icons/fa"; // If using React Icons for better performance
- import { FaKey, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
- import { ArrowLeft }   from 'lucide-react';
-
-function Employee() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-const [oldPassword, setOldPassword] = useState("");
-const [newPassword, setNewPassword] = useState("");
-const [confirmPassword, setConfirmPassword] = useState("");
- const [isLoading, setIsLoading] = useState(false);  // Initially not loading
-const [showOldPassword, setShowOldPassword] = useState(false);
-const [showNewPassword, setShowNewPassword] = useState(false);
-const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-const toggleOldPasswordVisibility = () => setShowOldPassword(!showOldPassword);
-const toggleNewPasswordVisibility = () => setShowNewPassword(!showNewPassword);
-const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+import { FaEdit } from "react-icons/fa";
+function EmployeePersonalDetails() {
+  const { empId } = useParams();
+  const [loading, setLoading] = useState(false); // To manage loading state
+ 
+  const [isLoading, setIsLoading] = useState(false);
   const [modalEmployee, setModalEmployee] = useState({});
-  const { user } = useAuth();
-
   const [employee, setEmployee] = useState(null);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-        // Basic validation
-        if (oldPassword.trim() === "") {
-            toast.error("Old password is required!");
-            return;
-        }
-        if (newPassword.trim() === "") {
-            toast.error("New password is required!");
-            return;
-        }
-        if (confirmPassword.trim() === "") {
-            toast.error("Confirm password is required!");
-            return;
-        }
-
-        // Password requirements validation
-        if (newPassword.length < 8) {
-            toast.error("New password must be at least 8 characters long!");
-            return;
-        }
-        if (newPassword !== confirmPassword) {
-            toast.error("New password and confirm password do not match!");
-            return;
-        }
-
-        // Show loading state
-        setIsLoading(true);
-
-        const response = await axios.put('http://localhost:5000/api/auth/updateUserPassword', {
-            empId: user.emp_id,
-            oldPassword,
-            newPassword,
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [employeeEducation, setEmployeeEducation] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+ 
+  const [selectedDocument, setSelectedDocument] = useState(null); // To hold the clicked document URL
+ 
+  const handleViewClick = (docUrl) => {
+    // Open the modal to view the clicked document
+    setSelectedDocument(docUrl);
+    setIsModalVisible(true);
+  };
+ 
+  useEffect(() => {
+    if (empId) {
+      // Fetch documents from backend when employee ID is entered
+      axios
+        .get(`http://localhost:5000/api/upload/getdocuments/${empId}`)
+        .then((response) => {
+          setDocuments(response.data.documents);
+        })
+        .catch((error) => {
+          console.error("Error fetching documents:", error);
         });
-
-        // Success case
-        if (response.data.success) {
-          alert(response.data.message);
-            // Reset form
-            setShowPasswordModal(false);
-            setOldPassword("");
-            setNewPassword("");
-            setConfirmPassword("");
-        } else {
-            // Handle unsuccessful response
-            alert(response.data.message || "Failed to update password");
-        }
-
-    } catch (error) {
-        // Error handling
-        const errorMessage = error.response?.data?.message || "Failed to update password. Please try again.";
-        alert(errorMessage);
-        console.error("Password reset error:", error);
-    } finally {
-        setIsLoading(false);
     }
-};
-
-  
+  }, [empId]);
+ 
   const handleEditClick = () => {
     setIsModalOpen(true);
     setModalEmployee(employee); // Load current data into the modal
   };
-
+ 
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-
+ 
   const handleSaveChanges = async () => {
     try {
-      // Make API call to update the emergency contact details
       const response = await axios.put(
         `http://localhost:5000/api/adduser/updateEmergencyContact/${employee.emp_id}`,
         {
-          emergency_person_name: modalEmployee.emergency_person_name,
-          emergency_relationship: modalEmployee.emergency_relationship,
-          emergency_address: modalEmployee.emergency_address,
-          emergency_mob_no: modalEmployee.emergency_mob_no,
+          emergency_person_name: modalEmployee.personal_information[0].emergency_person_name,
+          emergency_relationship: modalEmployee.personal_information[0].emergency_relationship,
+          emergency_address: modalEmployee.personal_information[0].emergency_address,
+          emergency_mob_no: modalEmployee.personal_information[0].emergency_mob_no,
         }
       );
-  
-      console.log("Update response:", response.data);
-  
+ 
+      console.log("API Response:", response); // Log the response from the API
+ 
       if (response.data.success) {
-        // Update the employee object with the modified data
-        setEmployee({
-          ...employee,
-          emergency_person_name: modalEmployee.emergency_person_name,
-          emergency_relationship: modalEmployee.emergency_relationship,
-          emergency_address: modalEmployee.emergency_address,
-          emergency_mob_no: modalEmployee.emergency_mob_no,
-        });
+        // Update modalEmployee with the new data
+        setEmployee((prevState) => ({
+          ...prevState,
+          personal_information: [
+            {
+              ...prevState.personal_information[0],
+              emergency_person_name: modalEmployee.personal_information[0].emergency_person_name,
+              emergency_relationship: modalEmployee.personal_information[0].emergency_relationship,
+              emergency_address: modalEmployee.personal_information[0].emergency_address,
+              emergency_mob_no: modalEmployee.personal_information[0].emergency_mob_no,
+            },
+          ],
+        }));
+ 
+        alert("Emergency contact updated successfully!");
         setIsModalOpen(false); // Close the modal after saving
       } else {
         console.error("Failed to update emergency contact:", response.data.error);
+        alert("Failed to update emergency contact. Please try again.");
       }
     } catch (error) {
-      console.error("Error updating emergency contact:", error);
+      console.error("Error updating emergency contact:", error.response ? error.response.data : error);
+      alert("An error occurred while updating emergency contact. Please try again.");
     }
-    setIsModalOpen(false);
-  };
-  
-
+ 
+    setIsModalOpen(false); // Close modal after any error as well
+};
+ 
+ 
+ 
   const getEmployee = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/adduser/getSingleEmployee/${user.emp_id}`
+        `http://localhost:5000/api/adduser/getSingleEmployee/${empId}`
       );
       console.log(response.data);
-
       if (response.data.success) {
-        const nameParts = name.split(" ");
-
-        // Extract first, middle, and last names
-
         setEmployee(response.data.data);
       } else {
         console.error("Failed to fetch employee:", response.data.error);
@@ -151,321 +105,391 @@ const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfir
       console.error("Failed to fetch employee:", error);
     }
   };
-
+ 
+  const getEmployeeEducation = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/adduser/getSingleEmployeeeducation/${empId}`
+      );
+      console.log(response.data); // Check what the backend returns
+      if (response.data.success && Array.isArray(response.data.data)) {
+        setEmployeeEducation(response.data.data); // Use response.data.data
+      } else {
+        console.error("Unexpected response format:", response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch employee education:", error);
+    }
+  };
   useEffect(() => {
-    if (user.emp_id) getEmployee();
-  }, [user.emo_id]);
-
-  if (!employee) return <div>Loading...</div>;
-
+    getEmployee();
+    getEmployeeEducation();
+  }, [empId]);
+ 
+  // Check if employee data is null or undefined before rendering
+  if (!employee) {
+    return <div>Loading...</div>; // Show loading while data is being fetched
+  }
+ 
   return (
     <div className="p-4 space-y-6">
       {/* Header Section */}
-      <div className=" gap-1">
-          <Link to='/'>
-          <ArrowLeft />
-          </Link>    
-          </div>
-
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">My Profile</h2>
-        <div className="space-x-2">
-          <Link to={`/employeepersonaldetails/${employee.emp_id}`}>
-            <button className="bg-blue-500 text-white px-3 py-1.5 rounded text-sm">
-              VIEW PERSONAL DETAILS
-            </button>
-          </Link>
-          <button className="bg-purple-500 text-white px-3 py-1.5 rounded text-sm">
-            DOWNLOAD
-          </button>
-
-         {/* forget button  */}
-         {/* <button className="bg-indigo-400 text-white px-3 py-1.5 rounded text-sm" onClick={() => setShowPasswordModal(true)}>
-          FORGOT PASSWORD
-          </button> */}
- {/* forget model  */}
- {showPasswordModal && (
-  <div className="fixed inset-0 z-20 bg-black bg-opacity-50 flex items-center justify-center backdrop-blur-sm">
-    <div className="bg-white p-6 rounded-lg shadow-xl w-96">
-      <h2 className="text-xl font-semibold mb-4">Reset Password</h2>
-      <form className="space-y-4">
-        {/* Old Password Input */}
-        <div className="relative">
-          <label className="block text-sm font-medium mb-1">Old Password</label>
-          <input
-            type={showOldPassword ? "text" : "password"}
-            value={oldPassword}
-            onChange={(e) => setOldPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-          <button
-            type="button"
-            className="absolute top-9 right-3 text-gray-600"
-            onClick={toggleOldPasswordVisibility}
-          >
-            {showOldPassword ? <FaEyeSlash /> : <FaEye />}
-          </button>
+        <h2 className="text-lg font-semibold">Personal Details</h2>
+      </div>
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-sm font-medium mb-3">Biographical</h3>
+        {/* Biographical Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div>
+            <p className="text-gray-500 text-xs">Full Name</p>
+            <p className="text-sm">{employee.emp_full_name || "User"}</p>
+          </div>
+ 
+          <div>
+            <p className="text-gray-500 text-xs">Gender</p>
+            <p className="text-sm">{employee.emp_gender || "Not Given"}</p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Date Of Birth</p>
+            <p className="text-sm">
+              {new Date(employee.emp_dob).toLocaleDateString() || "Not Given "}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Marital Status</p>
+            <p className="text-sm">{employee.marital_status || ""}</p>
+          </div>
         </div>
-
-        {/* New Password Input */}
-        <div className="relative">
-          <label className="block text-sm font-medium mb-1">New Password</label>
-          <input
-            type={showNewPassword ? "text" : "password"}
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-          <button
-            type="button"
-            className="absolute top-9 right-3 text-gray-600"
-            onClick={toggleNewPasswordVisibility}
-          >
-            {showNewPassword ? <FaEyeSlash /> : <FaEye />}
-          </button>
+ 
+        {/* Separator */}
+        <hr className="my-6 border-gray-200" />
+ 
+        <div>
+          <h3 className="text-sm font-medium mb-3">Address</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-gray-500 text-xs">Permanent Postal Address</p>
+              <p className="text-sm">
+              {employee.personal_information?.length > 0
+  ? `${employee.personal_information[0].permanent_address || ''}
+      ${employee.personal_information[0].permanent_city || ''}
+      ${employee.personal_information[0].permanent_state || ''}
+      ${employee.personal_information[0].permanent_zip_code || ''}`
+  : "No Address Available"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Present Postal Address</p>
+              <p className="text-sm">
+                {`${employee.personal_information[0].current_address}
+                 ${employee.personal_information[0].current_city}
+                 ${employee.personal_information[0].current_state}
+                  ${employee.personal_information[0].current_zip_code} ` ||
+                  "Not provided"}
+              </p>
+            </div>
+          </div>
         </div>
-
-        {/* Confirm Password Input */}
-        <div className="relative">
-          <label className="block text-sm font-medium mb-1">Confirm Password</label>
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-          <button
-            type="button"
-            className="absolute top-9 right-3 text-gray-600"
-            onClick={toggleConfirmPasswordVisibility}
-          >
-            {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
-          </button>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => setShowPasswordModal(false)}
-            className="px-4 py-2 text-gray-600 hover:text-gray-800"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSubmit}
-            type="submit"
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            Reset Password
-          </button>
-        </div>
-      </form>
+ 
+        {/* Separator */}
+        <hr className="my-6 border-gray-200" />
+ 
+        {/* Contact Section */}
+        <div>
+          <div className="flex gap-2 mb-3">
+            <h3 className="text-sm font-medium">Emergency Contact</h3>
+            <FaEdit
+              className="text-blue-500 cursor-pointer"
+              onClick={handleEditClick}
+            />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <p className="text-gray-500 text-xs">Blood Group</p>
+              <p className="text-sm">
+                {employee.personal_information[0].blood_group || "Not Provided"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Emergency Contact Name</p>
+              <p className="text-sm">
+                {employee?.personal_information[0].emergency_person_name || "NA"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Relationship</p>
+              <p className="text-sm">
+                {employee?.personal_information[0].emergency_relationship || "NA"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Emergency Address</p>
+              <p className="text-sm">{employee?.personal_information[0].emergency_address || "NA"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Emergency Mobile No</p>
+              <p className="text-sm">{employee?.personal_information[0].emergency_mob_no || "NA"}</p>
+            </div>
+          </div>
+          {/* Modal for Editing */}
+          {isModalOpen && (
+  <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+    <div className="bg-white rounded-lg shadow p-6 w-96">
+      <h3 className="text-xl font-medium mb-4">
+        Edit Emergency Contact
+      </h3>
+      <div className="mb-4">
+        <label className="text-gray-500 text-xs">
+          Emergency Contact Name
+        </label>
+        <input
+          type="text"
+          value={modalEmployee?.personal_information?.[0]?.emergency_person_name || ""}
+          onChange={(e) => {
+            const updatedPersonalInfo = [...modalEmployee.personal_information];
+            updatedPersonalInfo[0].emergency_person_name = e.target.value;
+            setModalEmployee({
+              ...modalEmployee,
+              personal_information: updatedPersonalInfo,
+            });
+          }}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="text-gray-500 text-xs">Relationship</label>
+        <input
+          type="text"
+          value={modalEmployee?.personal_information?.[0]?.emergency_relationship || ""}
+          onChange={(e) => {
+            const updatedPersonalInfo = [...modalEmployee.personal_information];
+            updatedPersonalInfo[0].emergency_relationship = e.target.value;
+            setModalEmployee({
+              ...modalEmployee,
+              personal_information: updatedPersonalInfo,
+            });
+          }}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="text-gray-500 text-xs">
+          Emergency Address
+        </label>
+        <input
+          type="text"
+          value={modalEmployee?.personal_information?.[0]?.emergency_address || ""}
+          onChange={(e) => {
+            const updatedPersonalInfo = [...modalEmployee.personal_information];
+            updatedPersonalInfo[0].emergency_address = e.target.value;
+            setModalEmployee({
+              ...modalEmployee,
+              personal_information: updatedPersonalInfo,
+            });
+          }}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="mb-4">
+        <label className="text-gray-500 text-xs">
+          Emergency Mobile No
+        </label>
+        <input
+          type="text"
+          value={modalEmployee?.personal_information?.[0]?.emergency_mob_no || ""}
+          onChange={(e) => {
+            const updatedPersonalInfo = [...modalEmployee.personal_information];
+            updatedPersonalInfo[0].emergency_mob_no = e.target.value;
+            setModalEmployee({
+              ...modalEmployee,
+              personal_information: updatedPersonalInfo,
+            });
+          }}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+      </div>
+      <div className="flex justify-end">
+        <button
+          className="bg-gray-500 text-white py-2 px-4 rounded mr-2"
+          onClick={handleCloseModal}
+        >
+          Cancel
+        </button>
+        <button
+          className="bg-blue-500 text-white py-2 px-4 rounded"
+          onClick={handleSaveChanges}
+        >
+          Save
+        </button>
+      </div>
     </div>
   </div>
 )}
-
-
-   
+ 
+ 
         </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6">
-        {/* Main Info Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <p className="text-gray-500 text-xs">Employee ID</p>
-            <p className="text-sm">{employee.emp_id}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Email ID</p>
-            <p className="text-sm">{employee.emp_personal_email}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Department</p>
-            <p className="text-sm">{employee.emp_department}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Current Office Location</p>
-            <p className="text-sm">
-              {employee.office_location ||
-                "Nikatby technologies pvt ltd, Noida, Uttar Pradesh, India (Non-Metro City)"}
-            </p>
-          </div>
-              
-          <div>
-            <p className="text-gray-500 text-xs">HOD</p>
-            <p className="text-sm">
-              {employee.hod || "Dr Bandana Kedia (PPIN311)"}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Gender</p>
-            <p className="text-sm">{employee.emp_gender}</p>
-          </div>
-
-          <div>
-            <p className="text-gray-500 text-xs">Date of Joining</p>
-            <p className="text-sm">
-              {new Date(employee.emp_join_date).toLocaleDateString() ||
-                "28-02-2022"}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Date of Confirmation</p>
-            <p className="text-sm">
-              {new Date(employee.emp_confirmation_date).toLocaleDateString()}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Company</p>
-            <p className="text-sm">
-              {employee.company || "NikatBy Technologies  Pvt. Ltd."}
-            </p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Team Leader</p>
-            <p className="text-sm">{employee.team_leader_name}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Manager</p>
-            <p className="text-sm">{employee.manager_name}</p>
-          </div>
-          <div>
-            <p className="text-gray-500 text-xs">Assigned Permission</p>
-            <p className="text-sm">{employee.permission}</p>
-          </div>
-        </div>
-
+ 
         {/* Separator */}
         <hr className="my-6 border-gray-200" />
-
-        {/* Biographical Section */}
+ 
+        {/* Personal Identity
+Section */}
         <div>
-          <h3 className="text-sm font-medium mb-3">Biographical</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <h3 className="text-sm font-medium mb-3">Personal Identity</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div>
-              <p className="text-gray-500 text-xs">First Name</p>
+              <p className="text-gray-500 text-xs">Addhaar</p>
               <p className="text-sm">
-                {" "}
-                {employee.emp_full_name
-                  ? employee.emp_full_name.split(" ")[0]
-                  : "NA"}
+                {employee.emp_addhar_no || "Not Provided"}
               </p>
             </div>
             <div>
-              <p className="text-gray-500 text-xs">Middle Name</p>
+              <p className="text-gray-500 text-xs">Pan</p>
               <p className="text-sm">
-                {" "}
-                {employee.emp_full_name
-                  ? employee.emp_full_name.split(" ")[1] || "NA"
-                  : "NA"}
+                {employee.emp_pan_card_no || "Not Provided"}
               </p>
             </div>
             <div>
-              <p className="text-gray-500 text-xs">Last Name</p>
+              <p className="text-gray-500 text-xs">Driving Licence</p>
               <p className="text-sm">
-                {employee.emp_full_name
-                  ? employee.emp_full_name.split(" ")[2] || "NA"
-                  : "NA"}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-500 text-xs">Date of Birth</p>
-              <p className="text-sm">
-                {new Date(employee.emp_dob).toLocaleDateString()}
+                {employee.driving_Licence || "Not Provided"}
               </p>
             </div>
           </div>
         </div>
-
+ 
         {/* Separator */}
         <hr className="my-6 border-gray-200" />
-
+ 
+        {/* employeeEducation
+Section */}
         <div>
-          <h3 className="text-sm font-medium mb-3">Contact</h3>
-          <div>
-            <p className="text-gray-500 text-xs">Office Mobile No</p>
-            <p className="text-sm">{employee.emp_phone_no}</p>
-          </div>
-        </div>
-
-        {/* Separator */}
-        <hr className="my-6 border-gray-200" />
-
-        {/* Organization Chart */}
-        <div>
-          <h3 className="text-sm font-medium mb-6">Organization Chart</h3>
-          <div className="relative">
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300">
-                {
-                  // Dynamically extract initials from the full name string
-                  employee.manager_name
-                    .split(" ") // Split the name by spaces
-                    .map((namePart) => namePart.charAt(0).toUpperCase()) // Get first letter of each part
-                    .join("") // Join the initials together
-                }
-              </div>
-              <div className="text-center">
-                <p className="text-xs font-medium">{employee.manager_name}</p>{" "}
-                {/* Full name dynamically rendered */}
-                <p className="text-xs text-gray-500">Project Manager</p>
-              </div>
-              <div className="h-8 w-px bg-gray-300 my-2"></div>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-xs mb-1 border-2 border-gray-300">
-                {
-                  // Dynamically extract initials from the full name string
-                  employee.team_leader_name
-                    .split(" ") // Split the name by spaces
-                    .map((namePart) => namePart.charAt(0).toUpperCase()) // Get first letter of each part
-                    .join("") // Join the initials together
-                }
-              </div>
-              <div className="text-center">
-                <p className="text-xs font-medium">
-                  {employee.team_leader_name}
-                </p>{" "}
-                {/* Full name dynamically rendered */}
-                <p className="text-xs text-gray-500">Team Leader</p>
-              </div>
-              <div className="h-8 w-px bg-gray-300 my-2"></div>
-            </div>
-
-            {/* Current Employee */}
-            <div className="flex justify-center">
-              <div className="flex bg-indigo-600 p-6 gap-3 items-center rounded-lg shadow-lg shadow-sky-400/50">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-xs text-white border-2 mb-1">
-                  {employee.emp_full_name
-                    .split(" ") // Split the full name by space to get the first and last names
-                    .map((namePart) => namePart.charAt(0).toUpperCase()) // Take the first letter of each name part
-                    .join("")}{" "}
-                  {/* Join the initials together */}
-                </div>
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs font-medium text-white">
-                    {employee.emp_full_name}
-                  </p>
-                  <p className="text-xs text-white">
-                    {employee.emp_designation}
-                  </p>
-                  <p className="text-xs text-white">
-                    {employee.emp_department}
+          <h3 className="text-sm font-medium mb-3">Education</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {employeeEducation && employeeEducation.length > 0 ? (
+              employeeEducation.map((edu, index) => (
+                <div key={index}>
+                  <p className="text-gray-500 text-xs">{edu.degree}</p>
+                  <p className="text-sm">{edu.institution || "Not Provided"}</p>
+                  <p className="text-sm">
+                    {edu.year_of_passing || "Not Provided"}
                   </p>
                 </div>
-              </div>
+              ))
+            ) : (
+              <p className="text-sm">No Education Details Provided</p>
+            )}
+          </div>
+        </div>
+ 
+        {/* Separator */}
+        <hr className="my-6 border-gray-200" />
+ 
+        <div>
+          <h3 className="text-sm font-medium mb-3">Bank Details</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div>
+              <p className="text-gray-500 text-xs">Account Holder Name</p>
+              <p className="text-sm">
+                {employee.account_holder_name || "Not Provided"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Bank Name</p>
+              <p className="text-sm">{employee.bank_name || "Not Provided"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Branch Name </p>
+              <p className="text-sm">
+                {employee.branch_name || "Not Provided"}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">Account No</p>
+              <p className="text-sm">{employee.account_no || "Not Provided"}</p>
+            </div>
+            <div>
+              <p className="text-gray-500 text-xs">IFSC Code</p>
+              <p className="text-sm">{employee.IFSC_code || "Not Provided"}</p>
             </div>
           </div>
         </div>
+ 
+        {/* Personal Documents Section */}
+        {/* <div>
+          <h3 className="text-sm font-medium mb-3">Personal Documents</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div>
+            <p className="text-gray-500 text-xs">Addhaar Back</p>
+            <img className="size-10" alt="adhar" src="/attendance.png"></img>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Addhar Front</p>
+            <img className="size-10" alt="adhar" src="/attendance.png"></img>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Pan Card</p>
+            <img className="size-10" alt="adhar" src="/attendance.png"></img>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Degree</p>
+            <img className="size-10" alt="adhar" src="/attendance.png"></img>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">High School MarkSheet</p>
+            <img className="size-10" alt="adhar" src="/attendance.png"></img>
+          </div>
+          <div>
+            <p className="text-gray-500 text-xs">Intermediate MarkSheet</p>
+            <img className="size-10" alt="adhar" src="/attendance.png"></img>
+          </div>
+        </div>
+        </div> */}
+ 
+        <hr className="my-6 border-gray-200" />
+        <h3 className="text-sm font-medium mb-3 mt-4">Personal Documents</h3>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          {documents.length > 0 ? (
+            documents.map((doc) => (
+              <div key={doc.doc_id}>
+                <p className="text-gray-500 text-xs">{doc.doc_title}</p>
+                <button
+                  onClick={() => handleViewClick(doc.doc_url)} // Open the document on click
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg text-xs"
+                >
+                  View
+                </button>
+              </div>
+            ))
+          ) : (
+            <p>No documents available for this Employee ID.</p>
+          )}
+        </div>
+        {isModalVisible && (
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+              <h3 className="text-xl font-semibold mb-4">View Document</h3>
+              <img
+                src={selectedDocument}
+                alt="Selected Document"
+                className="w-full h-auto"
+              />
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  onClick={() => setIsModalVisible(false)}
+                  className="bg-gray-400 text-white px-4 py-2 rounded-lg"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-export default Employee;
+ 
+export default EmployeePersonalDetails;
+ 

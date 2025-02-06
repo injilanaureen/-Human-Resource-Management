@@ -102,7 +102,7 @@ function EmployeeOverview() {
           </div>
           <div>
             <p className="text-gray-500 text-xs">Assigned Permission</p>
-            <p className="text-sm">{employee.permission}</p>
+            <p className="text-sm">{employee.role_info?.[0]?.permission}</p>
           </div>
         </div>
 

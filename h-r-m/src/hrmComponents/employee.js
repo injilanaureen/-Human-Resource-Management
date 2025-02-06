@@ -237,12 +237,13 @@ function Employee() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData)
     try {
       const response = await axios.post(
         "http://localhost:5000/api/adduser/submitUser",
        formData
       );
-
+          
       if (response.data.success) {
         console.log("User added successfully:", response.data);
       
@@ -536,8 +537,8 @@ function Employee() {
               </Link>
             </td>
             <td className="py-2 px-3">{row.emp_id || 'Not Generated' }</td>
-            <td className="py-2 px-3">{row.emp_designation}</td>
-            <td className="py-2 px-3">{row.emp_department}</td>
+            <td className="py-2 px-3">{row.designation_name}</td>
+            <td className="py-2 px-3">{row.department_name }</td>
             <td className="py-2 px-3">{row.emp_email || 'Not Generated yet' }</td>
             <td className="py-2 px-3">{row.team_leader_name || 'Not assigned'}</td>
             <td className="py-2 px-3">{row.manager_name || 'Not assigned'}</td>

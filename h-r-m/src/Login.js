@@ -28,6 +28,7 @@ const LoginForm = () => {
       });
   
       const userData = response.data;
+      console.log(userData);
   
       if (userData.isAuthenticated) {
         // Store user data in localStorage
@@ -106,14 +107,14 @@ const LoginForm = () => {
           </button>
         </form>
 
-        <div className="mt-8 text-sm text-gray-600">
+        {/* <div className="mt-8 text-sm text-gray-600">
           <p className="text-center font-medium">Demo Credentials:</p>
           <ul className="list-none text-center space-y-2 mt-3">
             <li>Admin: admin / admin</li>
             <li>Employee: employee / employee</li>
             <li>HR: hr / hr</li>
           </ul>
-        </div>
+        </div> */}
       </div>
     </div>
   );
